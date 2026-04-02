@@ -10,12 +10,10 @@
 
 
 #include <iostream>
+#include "aiff_reader.h"
 
 int main() {
-    int n = 496;
-    std::cout << std::dec << n << std::endl;
-    std::cout << std::oct << n << std::endl;
-    std::cout << std::hex << n << std::endl;
-    std::cout << "Hello, World!" << std::endl;
+    std::string filename = "/Users/sjoerd/git/music-library-indexer/music/Unherluferlick.aiff";
+    read(filename);
     return 0;
 }

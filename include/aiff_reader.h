@@ -11,11 +11,11 @@
 
 void read(const std::string& filename);
 
-// The FORM chunk as defined by AIFF spec
+// The FORM chunk as defined by AIFF spec, without the chunks field
 struct formChunk {
-    std::array<char, 4> ckID;       // Always 'FORM'
-    int32_t ckSize;                 // The size of the data portion
-    std::array<char, 4> formType;   // What is in the FORM chunk, always 'AIFF'
-    char chunks [];                 // The chunks contained within the FORM.
+    std::array<char, 4> ckID;       // Always 'FORM' (32 bits)
+    int32_t ckSize;                 // The size of the data portion (32 bits)
+    std::array<char, 4> formType;   // What is in the FORM chunk, always 'AIFF' (32 bits)
 };
+
 #endif //MUSIC_LIBRARY_INDEXER_AIFF_READER_H
