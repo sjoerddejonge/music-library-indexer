@@ -11,18 +11,19 @@
 
 void parseId3Header(std::ifstream& fin);
 
-// Should be 10 bytes = 80 bits:
-// ID3v2/file identifier   "ID3"
-// ID3v2 version           $03 00
-// ID3v2 flags             %abc00000
-// ID3v2 size              4 * %0xxxxxxx
 #include <array>
-#pragma pack(push, 1)
+
+#pragma pack(push, 1) // Prevent compiler from adding padding bytes.
+// Header for the ID3 tag. Contains the version, flags, and size of the tag. Should be 10 bytes / 80 bits.
 struct id3TagHeader {
     std::array<char, 3> file_identifier;    // 24 bits "ID3"
-    std::array<uint8_t, 2> version;      // 16 bits
-    uint8_t flags;                          // 8 bits
-    std::array<uint8_t, 4> size;            // 32 bits Synchsafe integer
+    std::array<uint8_t, 2> version;         // 16 bits
+    uint8_t flags;                          // 8 bits, first 3-4 bits are used as flags, others 0 (%abcd0000):
+                                                // a Unsynchronization
+                                                // b Extended header
+                                                // c Experimental indicator
+                                                // d Footer present
+    std::array<uint8_t, 4> size;            // 32 bits Synchsafe integer (4 * %0xxxxxxx)
 };
 #pragma pack(pop)
 

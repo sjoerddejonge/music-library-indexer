@@ -15,6 +15,7 @@ void parseId3Header(std::ifstream& fin) {
     std::cout << "=== ID3 Tag Header ===" << "\n";
     std::cout << "file_identifier: " << file_identifier << "\n";
     std::cout << "version: " << static_cast<int>(id3_tag_header.version[0]) << "." << static_cast<int>(id3_tag_header.version[1]) << "\n";
-    std::cout << "flags: " << static_cast<int>(id3_tag_header.flags) << "\n";
-    std::cout << "size: " << fromSynchsafe(id3_tag_header.size) << "\n";
+    const std::bitset<8> flags{id3_tag_header.flags};
+    std::cout << "flags: " << flags << "\n";
+    std::cout << "size: " << fromSynchsafe32(id3_tag_header.size) << "\n";
 }

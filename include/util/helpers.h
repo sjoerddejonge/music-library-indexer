@@ -18,7 +18,8 @@ T fromBigEndianInt(T value) {
     }
 }
 
-inline uint32_t fromSynchsafe(const std::array<uint8_t, 4>& value) {
+// Convert a synchsafe array of 4 ints to a regular 32 bit int
+inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
     const uint32_t a = (value[0] & 0x7F) << 21;
     const uint32_t b = (value[1] & 0x7F) << 14;
     const uint32_t c = (value[2] & 0x7F) << 7;
