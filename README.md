@@ -1,12 +1,19 @@
 ## Approach
-* Read AIFF file, scan all chunks
+* Read AIFF file
+* Scan all chunks
+* Locate ID3 chunk
 * Parse ID3 chunk
   * Read header
   * Scan all frames
     * Read target frames
 
-Target frames contain the information that I want to extract. 
-For example: artist, song title, key, bpm, record label, etc.
+Target frames contain the information that I want to extract.  
+These are:
+- artist
+- song title
+- key
+- bpm
+- record label
 
 ## Milestones  
 [x] Read FORM chunk  

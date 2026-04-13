@@ -5,10 +5,19 @@
 #pragma once
 #include <bit>
 #include <concepts>
+#include <string>
 
 #ifndef MUSIC_LIBRARY_INDEXER_HELPERS_H
 #define MUSIC_LIBRARY_INDEXER_HELPERS_H
 
+// Convert any std::array<char, N> to std::string
+template <size_t N>
+std::string charsToStr(const std::array<char, N>& value) {
+    const std::string str{value.begin(), value.end()};
+    return str;
+}
+
+// Convert integer types from big endian to native endianness.
 template <std::integral T>
 T fromBigEndianInt(T value) {
     if constexpr (std::endian::native == std::endian::big) {
@@ -28,6 +37,7 @@ inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
     return result;
 }
 
+// Convert float from big endian to native endianness.
 inline float fromBigEndianFloat(const float value) {
     if constexpr (std::endian::native == std::endian::big) {
         return value;
