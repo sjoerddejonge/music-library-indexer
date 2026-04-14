@@ -5,6 +5,7 @@
 #ifndef MLI_AIFF_READER_H
 #define MLI_AIFF_READER_H
 #include <array>
+#include <map>
 #include <vector>
 
 // Audio IFF uses big-endian order, meaning the most significant byte is stored at the smallest memory address
@@ -35,6 +36,6 @@ struct commonChunk {
 };
 #pragma pack(pop)
 
-void extractID3(const std::string& filename, bool verbose = false);
+std::map<std::string, std::vector<std::string>> extractID3(const std::string& filename, bool verbose = false);
 
 #endif //MLI_AIFF_READER_H

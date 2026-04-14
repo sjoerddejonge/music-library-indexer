@@ -20,6 +20,13 @@
 
 int main() {
     std::string filename = "/Users/sjoerd/git/music-library-indexer/music/Unherluferlick.aiff";
-    extractID3(filename);
+    std::map<std::string, std::vector<std::string>> id3_tag;
+    id3_tag = extractID3(filename);
+
+    for (const auto& [key, value] : id3_tag) {
+        for (const auto & i : value) {
+            std::cout << '[' << key << "] = " << i << "; " << std::endl;
+        }
+    }
     return 0;
 }

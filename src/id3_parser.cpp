@@ -5,6 +5,8 @@
 #include "id3_parser.h"
 #include <fstream>
 #include <iostream>
+
+#include "util/base64.h"
 #include "util/helpers.h"
 
 
@@ -36,7 +38,8 @@ id3Header parseId3Header(std::ifstream& fin, bool verbose) {
 }
 
 // Accepts an fstream at past the ID3 header and scans the location of the frames.
-void scanId3Frames(std::ifstream& fin, const uint32_t tag_size, bool verbose) {
+std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& fin, const uint32_t tag_size, bool verbose) {
+    std::map<std::string, std::vector<std::string>> frames;
     const int curr = fin.tellg(); // Current pos on the ifstream
     while (fin.good() && fin.tellg() < curr + tag_size) {
         id3FrameHeader id3_frame_header{};
@@ -50,8 +53,12 @@ void scanId3Frames(std::ifstream& fin, const uint32_t tag_size, bool verbose) {
             std::cout << "frame: " << charsToStr(id3_frame_header.frame_id);
             std::cout << ", size: " << fromSynchsafe32(id3_frame_header.size) << "\n";
         }
-
-        // Skip ahead to next frame header:
-        fin.seekg(fromSynchsafe32(id3_frame_header.size), std::ios_base::cur);
+        const uint32_t size = fromSynchsafe32(id3_frame_header.size);
+        std::vector<uint8_t> buffer(size);
+        fin.read(reinterpret_cast<char*>(buffer.data()), size);
+        std::string frame_data(buffer.begin(), buffer.end());
+        if (charsToStr(id3_frame_header.frame_id) == "APIC") frame_data = base64Encode(buffer);
+        frames[charsToStr(id3_frame_header.frame_id)].push_back(frame_data);
     }
+    return frames;
 }

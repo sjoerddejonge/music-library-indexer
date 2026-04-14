@@ -5,13 +5,13 @@
 #ifndef MLI_ID3_PARSER_H
 #define MLI_ID3_PARSER_H
 #include <iosfwd>
+#include <array>
+#include <vector>
+#include <map>
 
 // ID3v2 also uses big-endian order
 // https://id3.org/id3v2.3.0#ID3_tag_version_2.3.0
 // https://id3.org/id3v2.4.0-structure
-
-#include <array>
-
 #pragma pack(push, 1) // Prevent compiler from adding padding bytes.
 // Header for the ID3 tag. Contains the version, flags, and size of the tag. Should be 10 bytes / 80 bits.
 struct id3Header {
@@ -35,6 +35,6 @@ struct id3FrameHeader {
 #pragma pack(pop)
 
 id3Header parseId3Header(std::ifstream& fin, bool verbose = false);
-void scanId3Frames(std::ifstream& fin, uint32_t tag_size, bool verbose = false);
+std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& fin, uint32_t tag_size, bool verbose = false);
 
 #endif //MLI_ID3_PARSER_H

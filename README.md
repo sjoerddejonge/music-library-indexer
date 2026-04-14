@@ -25,7 +25,8 @@ Read `.aiff` file, scan chunks to find ID3 chunk,
 pass it to the id3_parser.
 
 `src/id3_parser.cpp`  
-Parse ID3 header, scan and read frames.  
+Parse ID3 header, scan and read frames. 
+
   
 `util/helpers.h`  
 Header-only helper functions.  
@@ -34,7 +35,7 @@ Header-only helper functions.
 Header-only Base64 encoder.  
 
 `util/json.hpp`  
-Header-only json library by github.com/nlohmann
+Header-only json library by github.com/nlohmann 
 under MIT License.
 
 ## 3. Milestones  
