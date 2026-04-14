@@ -21,15 +21,14 @@
 int main() {
     std::string filename = "/Users/sjoerd/git/music-library-indexer/music/Unherluferlick.aiff";
     read(filename);
-    // TWFueSBoYW5kcyBtYWtlIGxpZ2h0IHdvcmsu
-    // TWFueSBoYW5kcyBtYWtlIGxpZ2h0IHdvcmsu
 
-    // 1. Create empty JSON string.
-    // 2. Loop through all files in current directory.
-        // 2a. For each .aiff file:
-            // Add new object to JSON
-            // Read file, extract ID3 frames, append to JSON object
-    // 3. For each subdirectory in current directory:
-        // 3a. Perform step (2.)
+    std::string test = "Many hands make light work.";
+    std::vector<uint8_t> test_data(test.begin(), test.end());
+    std::cout << test << std::endl;
+    std::cout << base64Encode(test_data) << std::endl;
+    std::vector<uint8_t> encode_decode = base64Decode(base64Encode(test_data));
+    std::string encode_decode_string{encode_decode.begin(), encode_decode.end()};
+    std::cout << encode_decode_string << std::endl;
+
     return 0;
 }

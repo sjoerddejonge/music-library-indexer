@@ -1,7 +1,7 @@
 # Music library indexer
 A CLI app that reads all AIFF files in the current (and sub-) directories.  
 
-## Approach
+## 1. Approach
 1. Scan all files in current directory
 2. Loop through all .aiff files
 3. Loop through all subdirectories and start at step 1
@@ -17,13 +17,31 @@ A CLI app that reads all AIFF files in the current (and sub-) directories.
 All frames will be added to JSON. Later on I can decide which I find relevant 
 (for example artist, title, genre, label),
 
-## Milestones  
+## 2. Structure
+`main.cpp`  
+  
+`src/aiff_reader.cpp`  
+Read `.aiff` file, scan chunks to find ID3 chunk,
+pass it to the id3_parser.
+
+`src/id3_parser.cpp`  
+Parse ID3 header, scan and read frames.  
+  
+`util/helpers.h`  
+Header-only helper functions.  
+  
+`util/base64.h`  
+Header-only Base64 encoder.  
+
+## 3. Milestones  
 [x] Read FORM chunk  
 [x] Read all chunk headers (ID + size)  
 [x] Read ID3 tag header  
 [x] Scan ID3 frames  
 [ ] Read target ID3 frames  
-[ ] Append ID3 frames to JSON  
+[x] Write a Base64 encoder  
+[ ] (Optional) Write a Base64 decoder    
+[ ] Append ID3 frames to JSON     
 [ ] Accept input arguments (`mli index`, `mli index -verbose`)  
 [ ] Iterate through all files in directory to extract tags  
 [ ] Iterate through all subfolders to extract all tags  
