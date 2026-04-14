@@ -39,7 +39,7 @@ void scanId3Frames(std::ifstream& fin, const uint32_t tag_size) {
         fin.read(reinterpret_cast<char*>(&id3_frame_header), sizeof(id3_frame_header));
 
         // Optional? Maybe this can be deleted after removing the couts in this function.
-        // Exit when reaching padding bytes
+        // Exit when reaching padding bytes ( \0 = 00000000 )
         if (id3_frame_header.frame_id[0] == '\0') break;
 
         std::cout << "frame: " << charsToStr(id3_frame_header.frame_id);

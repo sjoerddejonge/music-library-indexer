@@ -8,6 +8,7 @@ add_executable(${PROJECT_NAME} main.cpp
         include/util/helpers.h
         src/aiff_reader.cpp
         include/id3_parser.h
-        src/id3_parser.cpp)
+        src/id3_parser.cpp
+        include/util/base64.h)
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)

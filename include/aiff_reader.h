@@ -2,8 +2,8 @@
 // Created by Sjoerd de Jonge on 02/04/2026.
 //
 
-#ifndef MUSIC_LIBRARY_INDEXER_AIFF_READER_H
-#define MUSIC_LIBRARY_INDEXER_AIFF_READER_H
+#ifndef MLI_AIFF_READER_H
+#define MLI_AIFF_READER_H
 #include <array>
 
 // Audio IFF uses big-endian order, meaning the most significant byte is stored at the smallest memory address
@@ -36,4 +36,4 @@ struct commonChunk {
 };
 #pragma pack(pop)
 
-#endif //MUSIC_LIBRARY_INDEXER_AIFF_READER_H
+#endif //MLI_AIFF_READER_H
