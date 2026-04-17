@@ -44,7 +44,7 @@ std::map<std::string, std::vector<std::string>> extractID3(const std::string& fi
 
             if (ckID == "ID3 ") {
                 if (verbose) std::cout << "Passing fstream to id3_parser by reference" << "\n";
-                id3Header id3_header = parseId3Header(fin);
+                ID3Header id3_header = parseId3Header(fin);
                 id3_tag = extractId3Frames(fin, fromSynchsafe32(id3_header.size), true);
             }
 

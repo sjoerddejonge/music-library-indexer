@@ -51,7 +51,8 @@ under MIT License.
 [x] Scan ID3 frames  
 [x] Read ID3 frames  
 [x] Write a Base64 encoder  
-[x] (Optional) Write a Base64 decoder    
+[x] (Optional) Write a Base64 decoder  
+[ ] Parse ID3 frames  
 [ ] Append ID3 frames to JSON     
 [ ] Accept input arguments (`mli index`, `mli index -verbose`)  
 [ ] Iterate through all files in directory to extract tags  

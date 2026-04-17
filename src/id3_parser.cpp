@@ -11,8 +11,8 @@
 
 
 // Accepts an fstream at the start of an ID3 tag and parses the header(s).
-id3Header parseId3Header(std::ifstream& fin, const bool verbose) {
-    id3Header id3_tag_header{};
+ID3Header parseId3Header(std::ifstream& fin, const bool verbose) {
+    ID3Header id3_tag_header{};
     fin.read(reinterpret_cast<char*>(&id3_tag_header), sizeof(id3_tag_header));
     if (verbose) {
         std::cout << "=== ID3 Tag Header ===" << "\n";
@@ -42,7 +42,7 @@ std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& 
     std::map<std::string, std::vector<std::string>> frames;
     const int curr = fin.tellg(); // Current pos on the ifstream
     while (fin.good() && fin.tellg() < curr + tag_size) {
-        id3FrameHeader id3_frame_header{};
+        ID3FrameHeader id3_frame_header{};
         fin.read(reinterpret_cast<char*>(&id3_frame_header), sizeof(id3_frame_header));
 
         // Optional? Maybe this can be deleted after removing the couts in this function.
@@ -58,7 +58,7 @@ std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& 
         std::vector<uint8_t> frame_data(size);
         fin.read(reinterpret_cast<char*>(frame_data.data()), fromSynchsafe32(id3_frame_header.size));
 
-        id3Frame id3_frame{
+        ID3Frame id3_frame{
             id3_frame_header,
             std::move(frame_data),
         };
@@ -77,7 +77,7 @@ std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& 
     return frames;
 }
 
-std::string readTextFrameData(const id3Frame &frame) {
+std::string readTextFrameData(const ID3Frame &frame) {
     // Read first byte for encoding
     const uint8_t encoding = frame.data[0];
 
@@ -124,3 +124,5 @@ std::string readTextFrameData(const id3Frame &frame) {
     std::string frame_string(start, end);
     return frame_string;
 }
+
+
