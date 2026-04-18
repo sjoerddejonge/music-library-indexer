@@ -8,6 +8,7 @@
 #include "id3_parser.h"
 #include "util/base64.h"
 #include "util/helpers.h"
+#include "util/json.hpp"
 
 
 // Accepts an fstream at the start of an ID3 tag and parses the header(s).
@@ -37,11 +38,15 @@ ID3Header parseId3Header(std::ifstream& fin, const bool verbose) {
     return id3_tag_header;
 }
 
-// Accepts an fstream at past the ID3 header and scans the location of the frames.
+// Accepts an ifstream at past the ID3 header and scans the location of the frames.
 std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& fin, const uint32_t id3_size, const bool verbose) {
     std::map<std::string, std::vector<std::string>> frames;
     const int curr = fin.tellg(); // Current pos on the ifstream
+    nlohmann::json song;
     while (fin.good() && fin.tellg() < curr + id3_size) {
+        // For every frame:
+
+        // Create the frame header
         ID3FrameHeader id3_frame_header{};
         fin.read(reinterpret_cast<char*>(&id3_frame_header), sizeof(id3_frame_header));
 
@@ -54,31 +59,16 @@ std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& 
             std::cout << ", size: " << fromSynchsafe32(id3_frame_header.size) << "\n";
         }
 
+        // Read the frame data:
         const uint32_t size = fromSynchsafe32(id3_frame_header.size);
         std::vector<uint8_t> frame_data(size);
         fin.read(reinterpret_cast<char*>(frame_data.data()), fromSynchsafe32(id3_frame_header.size));
 
-        ID3Frame id3_frame{
-            id3_frame_header,
-            std::move(frame_data),
-        };
+        auto frame = makeFrame(id3_frame_header, frame_data);
 
+
+        // OLD:
         std::string frame{};
-        // TODO: Parse the frame data according to frame type
-        // TODO: Research std::visit and/or consider alternatives
-        auto parsed = id3_frame.parse();
-        std::visit([](const auto& value) {
-            using T = std::decay_t<decltype(value)>;
-            if constexpr (std::is_same_v<T, TextInformationFrame>) {
-                // handle TextInformationFrame
-            } else if constexpr (std::is_same_v<T, TXXX>) {
-                // handle TXXX
-            } else if constexpr (std::is_same_v<T, APIC>) {
-                // handle APIC
-            } else if constexpr (std::is_same_v<T, std::monostate>) {
-                // unknown/empty frame, skip
-            }
-        }, parsed);
 
         // TODO: Remove after finishing ID3Frame parse() functionality
         // // If frame_id starts with a "T" (i.e. "TXXX"), it is a text frame
@@ -89,14 +79,23 @@ std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& 
         // }
         // fin.read(reinterpret_cast<char*>(buffer.data()), size);
 
-        // TODO: Refactor APIC base64Encode
+        // TODO: Refactor APIC base64Encode for new frame parsing
         if (charsToStr(id3_frame.header.frame_id) == "APIC") frame = base64Encode(id3_frame.data);
         frames[charsToStr(id3_frame.header.frame_id)].push_back(frame);
     }
     return frames;
 }
 
-// TODO: Remove after finishing ID3Frame parse() functionality
+std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uint8_t>& data) {
+    const std::string id = header.frameIdToStr();
+    if (id == "TXXX") return std::make_unique<TXXX>(header, data);
+    if (id == "COMM") return std::make_unique<COMM>(header, data);
+    if (id == "APIC") return std::make_unique<APIC>(header, data);
+    if (id[0] == 'T') return std::make_unique<TextInformationFrame>(header, data);
+    return nullptr;
+}
+
+// TODO: Remove after refactor frame parsing
 // std::string readTextFrameData(const ID3Frame &frame) {
 //     // Read first byte for encoding
 //     const uint8_t encoding = frame.data[0];

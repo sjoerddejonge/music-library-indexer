@@ -10,7 +10,10 @@
 #include <vector>
 #include <map>
 #include <variant>
+
+#include "util/base64.h"
 #include "util/helpers.h"
+#include "util/json.hpp"
 
 
 // ID3v2 also uses big-endian order
@@ -18,6 +21,7 @@
 // https://id3.org/id3v2.4.0-structure
 
 // TODO: Refactor frame type structs to reduce duplicate code (inheritance?)
+// TODO: Add errors to frame type constructors and parsing functions to account for malformed data
 
 // Prevent compiler from adding padding bytes.
 #pragma pack(push, 1)
@@ -52,26 +56,41 @@ struct ID3FrameHeader {
 };
 #pragma pack(pop)
 
+// The base struct for ID3 frames
+struct ID3Frame {
+    ID3FrameHeader header{};
+    virtual ~ID3Frame() = default;
+    virtual void toJson(nlohmann::json& song) const = 0;
+};
+
 //
 // ID3 Frame types
 // From: https://mutagen-specs.readthedocs.io/en/latest/id3/id3v2.4.0-frames.html#text-information-frames
 //
 
 // Text information frames, ID: "T000" - "TZZZ", excluding "TXXX".
-struct TextInformationFrame {
+struct TextInformationFrame : public ID3Frame {
     uint8_t encoding;           // Text encoding    $xx
     std::string value;          // Information      <text string(s) according to encoding>
 
-    explicit TextInformationFrame(const std::vector<uint8_t>& data) {
+    // Constructs a TextInformationFrame, throws on error.
+    explicit TextInformationFrame(const ID3FrameHeader frame_header, const std::vector<uint8_t>& data) {
         // Data should never be empty
         if (data.empty()) throw std::runtime_error("TextInformationFrame: empty frame");
 
+        this->header = frame_header;
         encoding = data[0];
         value = parseTextInformationFrame(data, encoding);
     }
 
+    // Append this frame to the JSON.
+    void toJson(nlohmann::json& song) const override {
+        song[header.frameIdToStr()] = value;
+    }
+
 private:
     static std::string parseTextInformationFrame(const std::vector<uint8_t>& data, const uint8_t& text_encoding) {
+        // TODO: Needs to account for scenarios where data is corrupted/not according to spec
         std::string result;
         switch (text_encoding) {
             case 0: {
@@ -113,19 +132,25 @@ private:
 };
 
 // User defined text information frame.
-struct TXXX {
+struct TXXX : public ID3Frame {
     uint8_t encoding;           // Text encoding    $xx
     std::string description;    // Description      <text string according to encoding> $00 (00)
     std::string value;          // Value            <text string according to encoding>
 
-    explicit TXXX(const std::vector<uint8_t>& data) {
+    explicit TXXX(const ID3FrameHeader frame_header, const std::vector<uint8_t>& data) {
         // Data should never be empty
         if (data.empty()) throw std::runtime_error("TXXX: empty frame");
 
+        this->header = frame_header;
         encoding = data[0];
         auto [desc, val] = parseTXXXFrame(data, encoding);
         description = std::move(desc);
         value = std::move(val);
+    }
+
+    // Append this frame to the JSON.
+    void toJson(nlohmann::json& song) const override {
+        song["TXXX"][description] = value;
     }
 
 private:
@@ -172,21 +197,27 @@ private:
 };
 
 // Comment frame.
-struct COMM {
+struct COMM : public ID3Frame {
     uint8_t encoding;                   // Text encoding          $xx
     std::array<uint8_t, 3> language{};  // Language               $xx xx xx
     std::string description;            // Short content descrip. <text string according to encoding> $00 (00)
     std::string value;                  // The actual text        <full text string according to encoding>
 
-    explicit COMM(const std::vector<uint8_t>& data) {
+    explicit COMM(const ID3FrameHeader frame_header, const std::vector<uint8_t>& data) {
         // Data should never be empty
         if (data.empty()) throw std::runtime_error("COMM: empty frame");
 
+        this->header = frame_header;
         encoding = data[0];
         language = {data[1], data[2], data[3]};
         auto [desc, val] = parseCOMMFrame(data, encoding);
         description = std::move(desc);
         value = std::move(val);
+    }
+
+    // Append this frame to the JSON.
+    void toJson(nlohmann::json& song) const override {
+        song["COMM"][description] = value;
     }
 
 private:
@@ -233,23 +264,32 @@ private:
 };
 
 // Attached picture frame.
-struct APIC {
+struct APIC : public ID3Frame {
     uint8_t encoding;           // Text encoding      $xx
     std::string mime_type;      // MIME type          <text string> $00
     uint8_t picture_type;       // Picture type       $xx
     std::string description;    // Description        <text string according to encoding> $00 (00)
     std::vector<uint8_t> data;  // <binary data>
 
-    explicit APIC(const std::vector<uint8_t>& frame_data) {
+    explicit APIC(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
         // Data should never be empty
         if (frame_data.empty()) throw std::runtime_error("APIC: empty frame");
 
+        this->header = frame_header;
         encoding = frame_data[0];
         auto [mime, picture, desc, picture_data] = parseAPICFrame(frame_data, encoding);
         mime_type = std::move(mime);
         picture_type = picture;
         description = std::move(desc);
         data = std::move(picture_data);
+    }
+
+    // Append this frame to the JSON.
+    void toJson(nlohmann::json& song) const override {
+        song["APIC"]["MIME type"] = mime_type;
+        song["APIC"]["Picture type"] = picture_type;
+        song["APIC"]["Description"] = description;
+        song["APIC"]["Data"] = base64Encode(data);
     }
 
 private:
@@ -326,28 +366,31 @@ private:
 //     std::string lyrics;
 // };
 
-struct ID3Frame {
-    ID3FrameHeader header;
-    std::vector<uint8_t> data;  // Data for the frame, see structs defined above.
-
-    // Parse the frame data, according to frame type.
-    std::variant<std::monostate, TextInformationFrame, TXXX, COMM, APIC> parse() const {
-        // TODO: Improve fallback when frame has no data.
-        // Abort when there is no frame data to parse
-        if (header.getSize() <= 0 || data.empty()) {
-            return std::monostate{};
-        }
-        std::string id = header.frameIdToStr();
-        if (id[0] == 'T' && id != "TXXX") return TextInformationFrame(data);
-        if (id == "TXXX") return TXXX(data);
-        if (id == "COMM") return COMM(data);
-        if (id == "APIC") return APIC(data);
-        return std::monostate{};
-    }
-};
+// TODO: Delete after refactor frame parsing
+// struct ID3Frame {
+//     ID3FrameHeader header;
+//     std::vector<uint8_t> data;  // Data for the frame, see structs defined above.
+//
+//     // Parse the frame data, according to frame type.
+//     std::variant<std::monostate, TextInformationFrame, TXXX, COMM, APIC> parse() const {
+//         // TODO: Improve fallback when frame has no data.
+//         // Abort when there is no frame data to parse
+//         if (header.getSize() <= 0 || data.empty()) {
+//             return std::monostate{};
+//         }
+//         std::string id = header.frameIdToStr();
+//         if (id[0] == 'T' && id != "TXXX") return TextInformationFrame(data);
+//         if (id == "TXXX") return TXXX(data);
+//         if (id == "COMM") return COMM(data);
+//         if (id == "APIC") return APIC(data);
+//         return std::monostate{};
+//     }
+// };
 
 ID3Header parseId3Header(std::ifstream& fin, bool verbose = false);
 std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& fin, uint32_t id3_size, bool verbose = false);
-std::string readTextFrameData(const ID3Frame &frame);
+std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uint8_t>& data);
+// TODO: Delete after refactoring parsing:
+// std::string readTextFrameData(const ID3Frame &frame);
 
 #endif //MLI_ID3_PARSER_H

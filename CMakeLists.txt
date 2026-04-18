@@ -10,7 +10,6 @@ add_executable(${PROJECT_NAME} main.cpp
         include/id3_parser.h
         src/id3_parser.cpp
         include/util/base64.h
-        include/util/json.hpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
