@@ -66,18 +66,6 @@ void extractId3Frames(std::ifstream& fin, const uint32_t id3_size, nlohmann::jso
         if (const auto frame = makeFrame(id3_frame_header, frame_data)) {
             frame->toJson(song);
         }
-
-        // OLD:
-        // std::string frame{};
-
-        // TODO: Remove after finishing ID3Frame parse() functionality
-        // // If frame_id starts with a "T" (i.e. "TXXX"), it is a text frame
-        // if (charsToStr(id3_frame.header.frame_id)[0] == 'T') {
-        //     frame = readTextFrameData(id3_frame);
-        // } else {
-        //     //
-        // }
-        // fin.read(reinterpret_cast<char*>(buffer.data()), size);
     }
 }
 
@@ -89,54 +77,3 @@ std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uin
     if (id[0] == 'T') return std::make_unique<TextInformationFrame>(header, data);
     return nullptr;
 }
-
-// TODO: Remove after refactor frame parsing
-// std::string readTextFrameData(const ID3Frame &frame) {
-//     // Read first byte for encoding
-//     const uint8_t encoding = frame.data[0];
-//
-//     // $00   ISO-8859-1 [ISO-8859-1]. Terminated with $00.
-//     // $01   UTF-16 [UTF-16] encoded Unicode [UNICODE] with BOM. All
-//     //       strings in the same frame SHALL have the same byteorder.
-//     //       Terminated with $00 00.
-//     // $02   UTF-16BE [UTF-16] encoded Unicode [UNICODE] without BOM.
-//     //       Terminated with $00 00.
-//     // $03   UTF-8 [UTF-8] encoded Unicode [UNICODE]. Terminated with $00.
-//
-//     auto start = frame.data.begin();
-//     auto end = frame.data.end();
-//
-//     switch (encoding) {
-//         case 0:
-//             // $00   ISO-8859-1 [ISO-8859-1]. Terminated with $00.
-//             start = frame.data.begin() + 1;
-//             end = frame.data.end();
-//             break;
-//         case 1:
-//             // $01   UTF-16 [UTF-16] encoded Unicode [UNICODE] with BOM. All
-//             //       strings in the same frame SHALL have the same byteorder.
-//             //       Terminated with $00 00.
-//             start = frame.data.begin() + 1;
-//             end = frame.data.end()-2;
-//             break;
-//         case 2:
-//             // $02   UTF-16BE [UTF-16] encoded Unicode [UNICODE] without BOM.
-//             //       Terminated with $00 00.
-//             start = frame.data.begin() + 1;
-//             end = frame.data.end()-2;
-//             break;
-//         case 3:
-//             // $03   UTF-8 [UTF-8] encoded Unicode [UNICODE]. Terminated with $00.
-//             start = frame.data.begin() + 1;
-//             end = frame.data.end()-1;
-//             break;
-//         default:
-//             break;
-//     }
-//
-//     std::cout << "encoding: " << +encoding << "\n";
-//     std::string frame_string(start, end);
-//     return frame_string;
-// }
-
-
