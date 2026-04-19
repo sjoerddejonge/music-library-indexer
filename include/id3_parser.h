@@ -217,6 +217,7 @@ struct COMM : public ID3Frame {
 
     // Append this frame to the JSON.
     void toJson(nlohmann::json& song) const override {
+        // TODO: Add language field to JSON
         song["COMM"][description] = value;
     }
 
@@ -353,6 +354,7 @@ private:
     }
 };
 
+// TODO: Add support for URL and USLT frames:
 // // URL link frames, ID: "W000" - "WZZZ", excluding "WXXX".
 // struct URLLinkFrame {
 //     std::string url;
@@ -364,27 +366,6 @@ private:
 //     std::array<uint8_t, 3> language;
 //     std::string content_descriptor;
 //     std::string lyrics;
-// };
-
-// TODO: Delete after refactor frame parsing
-// struct ID3Frame {
-//     ID3FrameHeader header;
-//     std::vector<uint8_t> data;  // Data for the frame, see structs defined above.
-//
-//     // Parse the frame data, according to frame type.
-//     std::variant<std::monostate, TextInformationFrame, TXXX, COMM, APIC> parse() const {
-//         // TODO: Improve fallback when frame has no data.
-//         // Abort when there is no frame data to parse
-//         if (header.getSize() <= 0 || data.empty()) {
-//             return std::monostate{};
-//         }
-//         std::string id = header.frameIdToStr();
-//         if (id[0] == 'T' && id != "TXXX") return TextInformationFrame(data);
-//         if (id == "TXXX") return TXXX(data);
-//         if (id == "COMM") return COMM(data);
-//         if (id == "APIC") return APIC(data);
-//         return std::monostate{};
-//     }
 // };
 
 ID3Header parseId3Header(std::ifstream& fin, bool verbose = false);

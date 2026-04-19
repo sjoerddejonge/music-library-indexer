@@ -13,8 +13,7 @@
 #include <iostream>
 #include <map>
 
-std::map<std::string, std::vector<std::string>> extractID3(const std::string& filename, nlohmann::json& song, const bool verbose) {
-    std::map<std::string, std::vector<std::string>> id3_tag;
+void extractID3(const std::string& filename, nlohmann::json& song, const bool verbose) {
     std::ifstream fin{ filename, std::ios_base::binary }; // Create an if-stream to open the AIFF.
     if (fin) {
         formChunk form_chunk{};
@@ -54,6 +53,4 @@ std::map<std::string, std::vector<std::string>> extractID3(const std::string& fi
             if (verbose) std::cout << "current position: " << fin.tellg() << "\n";
         }
     }
-
-    return id3_tag;
 }

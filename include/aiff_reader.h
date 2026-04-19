@@ -39,6 +39,6 @@ struct commonChunk {
 };
 #pragma pack(pop)
 
-std::map<std::string, std::vector<std::string>> extractID3(const std::string& filename, nlohmann::json& song, bool verbose = false);
+void extractID3(const std::string& filename, nlohmann::json& song, bool verbose = false);
 
 #endif //MLI_AIFF_READER_H
