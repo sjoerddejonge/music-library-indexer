@@ -18,18 +18,22 @@
 #include <filesystem>
 #include "aiff_reader.h"
 #include "util/base64.h"
+#include "util/json.hpp"
 
 int main() {
     const std::string project_root = PROJECT_ROOT;
     const std::string filename = project_root + "/music/sample_break.aiff";
 
-    std::map<std::string, std::vector<std::string> > id3_tag = extractID3(filename);
+    // JSON to store the song tag data
+    nlohmann::json song;
 
-    for (const auto& [key, value] : id3_tag) {
-        for (const auto & i : value) {
-            if (key == "APIC") continue;
-            std::cout << '[' << key << "] = " << i << "; " << std::endl;
-        }
-    }
+    std::map<std::string, std::vector<std::string> > id3_tag = extractID3(filename, song);
+    std::cout << song.dump() << std::endl;
+    // for (const auto& [key, value] : id3_tag) {
+    //     for (const auto & i : value) {
+    //         if (key == "APIC") continue;
+    //         std::cout << '[' << key << "] = " << i << "; " << std::endl;
+    //     }
+    // }
     return 0;
 }

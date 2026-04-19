@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "util/json.hpp"
 
 // Audio IFF uses big-endian order, meaning the most significant byte is stored at the smallest memory address
 
@@ -38,6 +39,6 @@ struct commonChunk {
 };
 #pragma pack(pop)
 
-std::map<std::string, std::vector<std::string>> extractID3(const std::string& filename, bool verbose = false);
+std::map<std::string, std::vector<std::string>> extractID3(const std::string& filename, nlohmann::json& song, bool verbose = false);
 
 #endif //MLI_AIFF_READER_H

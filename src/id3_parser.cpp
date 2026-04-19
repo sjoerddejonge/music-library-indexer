@@ -39,10 +39,9 @@ ID3Header parseId3Header(std::ifstream& fin, const bool verbose) {
 }
 
 // Accepts an ifstream at past the ID3 header and scans the location of the frames.
-std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& fin, const uint32_t id3_size, const bool verbose) {
+void extractId3Frames(std::ifstream& fin, const uint32_t id3_size, nlohmann::json& song, const bool verbose) {
     std::map<std::string, std::vector<std::string>> frames;
     const int curr = fin.tellg(); // Current pos on the ifstream
-    nlohmann::json song;
     while (fin.good() && fin.tellg() < curr + id3_size) {
         // For every frame:
 
@@ -64,11 +63,12 @@ std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& 
         std::vector<uint8_t> frame_data(size);
         fin.read(reinterpret_cast<char*>(frame_data.data()), fromSynchsafe32(id3_frame_header.size));
 
-        auto frame = makeFrame(id3_frame_header, frame_data);
-
+        if (const auto frame = makeFrame(id3_frame_header, frame_data)) {
+            frame->toJson(song);
+        }
 
         // OLD:
-        std::string frame{};
+        // std::string frame{};
 
         // TODO: Remove after finishing ID3Frame parse() functionality
         // // If frame_id starts with a "T" (i.e. "TXXX"), it is a text frame
@@ -78,12 +78,7 @@ std::map<std::string, std::vector<std::string>> extractId3Frames(std::ifstream& 
         //     //
         // }
         // fin.read(reinterpret_cast<char*>(buffer.data()), size);
-
-        // TODO: Refactor APIC base64Encode for new frame parsing
-        if (charsToStr(id3_frame.header.frame_id) == "APIC") frame = base64Encode(id3_frame.data);
-        frames[charsToStr(id3_frame.header.frame_id)].push_back(frame);
     }
-    return frames;
 }
 
 std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uint8_t>& data) {

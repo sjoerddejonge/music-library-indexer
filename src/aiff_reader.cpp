@@ -13,7 +13,7 @@
 #include <iostream>
 #include <map>
 
-std::map<std::string, std::vector<std::string>> extractID3(const std::string& filename, const bool verbose) {
+std::map<std::string, std::vector<std::string>> extractID3(const std::string& filename, nlohmann::json& song, const bool verbose) {
     std::map<std::string, std::vector<std::string>> id3_tag;
     std::ifstream fin{ filename, std::ios_base::binary }; // Create an if-stream to open the AIFF.
     if (fin) {
@@ -45,7 +45,7 @@ std::map<std::string, std::vector<std::string>> extractID3(const std::string& fi
             if (ckID == "ID3 ") {
                 if (verbose) std::cout << "Passing fstream to id3_parser by reference" << "\n";
                 ID3Header id3_header = parseId3Header(fin);
-                id3_tag = extractId3Frames(fin, fromSynchsafe32(id3_header.size), true);
+                extractId3Frames(fin, fromSynchsafe32(id3_header.size), song, true);
             }
 
             // Determine how far we skip ahead, which is equal to the size of data in the chunk.
