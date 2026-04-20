@@ -23,27 +23,34 @@ nlohmann::json libraryToJson(const std::string& directory_path, const bool sub_d
     // Create a path:
     const auto path = std::filesystem::path(directory_path);
 
-    nlohmann::json library;
+    nlohmann::json library = nlohmann::json::array();
 
-    // Lambda for scanning the directories (recursive or not):
+    // Lambda function for scanning the directories (recursive or not):
     auto scan = [&](const auto& iterator) {
         for (auto const& dir_entry : iterator) {
+            // AIFF files
             if (dir_entry.path().extension() == ".aiff" || dir_entry.path().extension() == ".aif") {
-                // Create an if-stream to open the file.
-                std::ifstream fin{ dir_entry.path(), std::ios_base::binary };
-
-                // Skip ifstream to the start of the ID3 tag.
-                locateId3(fin);
-                const nlohmann::json song = id3ToJson(fin);
-                library.push_back(song);
+                std::ifstream fin{ dir_entry.path(), std::ios_base::binary }; // Create an if-stream to open the file.
+                if (!fin) {
+                    std::cerr << "Failed to open: " << dir_entry.path() << "\n";
+                    continue;
+                }
+                try {
+                    locateId3(fin); // Skip ifstream to the start of the ID3 tag.
+                    const nlohmann::json song = id3ToJson(fin);
+                    library.push_back(song);
+                }
+                catch (const std::exception& e) {
+                    std::cerr << "Error occurred: " << e.what() << "\n";
+                }
             }
         }
     };
 
-    if (sub_directories) {
+    if (sub_directories) { // Recursive scanning
         const std::filesystem::recursive_directory_iterator iterator{path};
         scan(iterator);
-    } else {
+    } else { // Non-recursive scanning
         const std::filesystem::directory_iterator iterator{path};
         scan(iterator);
     }

@@ -59,14 +59,16 @@ I find relevant (for example artist, title, genre, label),
 
 ## 4. Contents
 `main.cpp`  
+
+`src/library_scanner.cpp`  
+Scan through a directory looking for supported filetypes.
   
 `src/aiff_reader.cpp`  
 Read `.aiff` file, scan chunks to find ID3 chunk,
 pass it to the id3_parser.
 
 `src/id3_parser.cpp`  
-Parse ID3 header, scan and read frames. 
-
+Parse ID3 header, scan and read frames.
   
 `include/util/helpers.h`  
 Header-only helper functions.  
@@ -91,7 +93,7 @@ under MIT License.
 `[x]` Parse ID3 frames  
 `[x]` Append ID3 frames to JSON      
 `[x]` Iterate through all files in directory to extract tags  
-`[x]` Iterate through all subfolders to extract all tags  
+`[x]` Iterate through all subfolders to extract all tags   
 `[ ]` Accept input arguments (`mli index`, `mli index -verbose`)  
 
 ### Wishlist
