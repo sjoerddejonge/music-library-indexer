@@ -28,10 +28,10 @@ int main() {
 
     // Recursive directory scanning:
     const nlohmann::json library = libraryToJson(directory_path);
-    std::cout << "Recursive library JSON: \n" << library.dump(1) << std::endl;
+    std::cout << "Recursive library JSON: \n" << library.dump(4) << std::endl;
     // Non-recursive directory scanning:
     const nlohmann::json library2 = libraryToJson(directory_path, false);
-    std::cout << "Non recursive library JSON: \n" << library2.dump() << std::endl;
+    std::cout << "Non recursive library JSON: \n" << library2.dump(4) << std::endl;
 
     return 0;
 }

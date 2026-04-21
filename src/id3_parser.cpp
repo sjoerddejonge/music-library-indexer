@@ -278,92 +278,47 @@ std::tuple<std::string, uint8_t, std::string, std::vector<uint8_t>> APIC::parseA
     std::string desc;
     std::vector<uint8_t> picture_data{};
 
-    // // For UTF-16 the terminating byte is double
-    // const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
-    // // TODO: Refactor this code and check for safety with malformed data
-    // auto it_begin = (is_double_byte)
-    //                     ? frame_data.begin() + 3
-    //                     : frame_data.begin() + 1;
-    // auto it_end = (is_double_byte)
-    //                   ? findTerminatingIterator(it_begin, frame_data.end())
-    //                   : std::find(it_begin, frame_data.end(), 0x00);
-    // mime = toUtf8(it_begin, it_end, text_encoding);
-    //
-    // it_begin = it_end;
-    // // If there is no more data, end here.
-    // if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
-    // // TODO: This needs a check to see if it_end + 2 is a valid address
-    // std::advance(it_begin, (is_double_byte)? 2 : 1);
-    //
-    // picture = *it_begin;
-    //
-    // // TODO: This needs a check to see if it_end + 2 is a valid address
-    // std::advance(it_begin, (is_double_byte)? 2 : 1);
-    // // If there is no more data, end here.
-    // if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
-    //
-    // it_end = (is_double_byte)
-    //     ? findTerminatingIterator(it_begin, frame_data.end())
-    //     : std::find(it_begin, frame_data.end(), 0x00);
-    //
-    // desc = toUtf8(it_begin, it_end, text_encoding);
-    //
-    // it_begin = it_end;
-    // // If there is no more data, end here.
-    // if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
-    // // TODO: This needs a check to see if it_end + 2 is a valid address
-    // std::advance(it_begin, (is_double_byte)? 2 : 1);
-    //
-    // it_end = frame_data.end();
-    // picture_data = std::vector<uint8_t>(it_begin, it_end);
+    // if (text_encoding == 1 || text_encoding == 2) {
+    //     std::cerr << "UTF-16 is not yet supported.\n";
+    //     return {mime, picture, desc, picture_data};
+    // }
 
-    switch (text_encoding) {
-        case 0:
-            // ISO-8859-1, terminated with $00 and 1 byte per char.
-        case 3: {
-            // UTF-8, terminated with $00 and 1 byte per char.
-            auto it_begin = frame_data.begin() + 1; // Skip first byte, used for encoder
-            auto it_end = std::find(it_begin, frame_data.end(), '\0');
-            mime = std::string(it_begin, it_end);
-            it_begin = it_end + 1;
+    // For UTF-16 the terminating byte is double, except for MIME type which is always ISO-8859-1 encoding
+    const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
+    // TODO: Refactor this code and check for safety with malformed data
+    auto it_begin = (is_double_byte)
+                        ? frame_data.begin() + 3
+                        : frame_data.begin() + 1;
+    auto it_end = std::find(it_begin, frame_data.end(), 0x00);
+    mime = toUtf8(it_begin, it_end, 0);
 
-            // If there is no more data, end here.
-            if (it_begin == frame_data.end()) break;
+    it_begin = it_end;
+    // If there is no more data, end here.
+    if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
+    // TODO: This needs a check to see if it_end + 2 is a valid address
+    std::advance(it_begin, (is_double_byte)? 2 : 1);
 
-            picture = *it_begin;
-            ++it_begin;
+    picture = *it_begin;
 
-            it_end = std::find(it_begin, frame_data.end(), '\0');
-            desc = std::string(it_begin, it_end);
+    // TODO: This needs a check to see if it_end + 2 is a valid address
+    std::advance(it_begin, (is_double_byte)? 2 : 1);
+    // If there is no more data, end here.
+    if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
 
-            it_begin = it_end + 1;
+    it_end = (is_double_byte)
+        ? findTerminatingIterator(it_begin, frame_data.end())
+        : std::find(it_begin, frame_data.end(), 0x00);
 
-            // If there is no more data, end here.
-            if (it_begin == frame_data.end()) break;
+    desc = toUtf8(it_begin, it_end, text_encoding);
 
-            it_end = frame_data.end();
-            picture_data = std::vector<uint8_t>(it_begin, it_end);
-            break;
-        }
-        case 1: {
-            // UTF-16, terminated with $00 00 and 2 bytes per char. With byte order mark (BOM)
-            // determining endianness. BOM is either FE FE (little endian) or FE FF (big endian).
-            // TODO: Add UTF-16 support.
-            std::cerr << "UTF-16 text is not yet supported.\n";
-            break;
-        }
-        case 2: {
-            // UTF-16BE, terminated with $00 00 and 2 bytes per char.
-            // do magic stuff
-            // TODO: Add UTF-16BE support.
-            std::cerr << "UTF-16BE text is not yet supported.\n";
-            break;
-        }
-        default: {
-            std::cerr << "Text encoding was not recognized.\n";
-            break;
-        }
-    }
+    it_begin = it_end;
+    // If there is no more data, end here.
+    if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
+    // TODO: This needs a check to see if it_end + 2 is a valid address
+    std::advance(it_begin, (is_double_byte)? 2 : 1);
+
+    it_end = frame_data.end();
+    picture_data = std::vector<uint8_t>(it_begin, it_end);
 
     return {mime, picture, desc, picture_data};
 }
