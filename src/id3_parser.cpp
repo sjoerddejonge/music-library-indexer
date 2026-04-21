@@ -103,9 +103,9 @@ std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uin
 }
 
 /**
- *  ==========================
- *  ID3 Frame Structs methods:
- *  ==========================
+ *  ==========================================
+ *          ID3 Frame Structs methods:
+ *  ==========================================
  */
 
 // -------------------------------------
@@ -129,11 +129,12 @@ void TextInformationFrame::toJson(nlohmann::json& song) const {
 // (Private) Parse frame data into struct member variable(s).
 std::string TextInformationFrame::parseTextInformationFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
     // TODO: Needs to account for scenarios where data is corrupted/not according to spec
-    const auto it_begin = frame_data.begin() + 1; // Skip first byte, used for encoder
-    const auto it_end = std::find(it_begin, frame_data.end(), 0x00);
-    // Passing iterators so I won't have to copy the vector
-    std::string result = toUtf8(it_begin, it_end, text_encoding);
-    return result;
+    const bool is_double_byte = (text_encoding == 1 || text_encoding == 2); // UTF-16(BE) uses 2 terminating bytes
+    // Determine the start iterator as start of value field
+    const auto it_start = std::next(frame_data.begin(), 1); // Skip 1 byte (encoding)
+    auto [val, it_after_desc, little_endian] =
+        readFieldToUtf8(it_start, frame_data.end(), is_double_byte, text_encoding);
+    return val;
 }
 
 // -------------------------------------
@@ -161,31 +162,14 @@ std::pair<std::string, std::string> TXXX::parseTXXXFrame(const std::vector<uint8
     // text_encoding: 0 = ISO-8859-1, 1 = UTF-16, 2 = UTF-16BE, 3 = UTF-8
     // For UTF-16 the terminating byte is double
     const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
-    // TODO: Determine endianness from BOM for the UTF-16 case here
-
-    // TODO: Refactor this code in new function that reads a field (up to null terminator)
-    auto it_begin = (is_double_byte)
-                        ? frame_data.begin() + 3
-                        : frame_data.begin() + 1;
-    auto it_end = (is_double_byte)
-                      ? findTerminatingIterator(it_begin, frame_data.end())
-                      : std::find(it_begin, frame_data.end(), 0x00);
-    std::string desc = toUtf8(it_begin, it_end, text_encoding);
-
-    // We continue from the end position:
-    it_begin = it_end;
-
+    // Determine the start iterator as start of description field
+    const auto it_start = std::next(frame_data.begin(), 1); // Skip 1 byte (encoding)
+    auto [desc, it_after_desc, little_endian] =
+        readFieldToUtf8(it_start, frame_data.end(), is_double_byte, text_encoding);
     // If there is no more data, end here.
-    if (it_begin == frame_data.end()) return {desc, ""};
-
-    // Advance it_begin to the next byte(s) to find the next part
-    // TODO: Review this again to catch issues with malformed data (what if there is only one byte left?)
-    std::advance(it_begin, (is_double_byte)? 2 : 1);
-    it_end = (is_double_byte)
-                 ? findTerminatingIterator(it_begin, frame_data.end())
-                 : std::find(it_begin, frame_data.end(), 0x00);
-    std::string val = toUtf8(it_begin, it_end, text_encoding);
-
+    if (it_after_desc == frame_data.end()) return {desc, ""};
+    auto [val, it_after_val, lit_endian] =
+        readFieldToUtf8(it_after_desc, frame_data.end(), is_double_byte, text_encoding, little_endian.value_or(true));
     return {desc, val};
 }
 
@@ -213,34 +197,16 @@ void COMM::toJson(nlohmann::json& song) const {
 
 // (Private) Parse frame data into struct member variable(s).
 std::pair<std::string, std::string> COMM::parseCOMMFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
-    // TODO: Looks almost identical to parseTXXXFrame(), maybe combine or inherit?
     // For UTF-16 the terminating byte is double
     const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
-    // TODO: Determine endianness from BOM for the UTF-16 case here
-
-    // TODO: Refactor this code in new function that reads a field (up to null terminator)
-    auto it_begin = (is_double_byte)
-                        ? frame_data.begin() + 6      // UTF-16: skip 6 bytes, encoder (1) + BOM (2) + language (3)
-                        : frame_data.begin() + 4;     // UTF-8 and ISO: skip 6 bytes, encoder (1) + language (3)
-    auto it_end = (is_double_byte)
-                      ? findTerminatingIterator(it_begin, frame_data.end())
-                      : std::find(it_begin, frame_data.end(), 0x00);
-    std::string desc = toUtf8(it_begin, it_end, text_encoding);
-
-    // We continue from the end position:
-    it_begin = it_end;
-
+    // Determine the start iterator as start of description field
+    const auto it_start = std::next(frame_data.begin(), 4); // Skip 4 bytes (encoding + lang)
+    auto [desc, it_after_desc, little_endian] =
+        readFieldToUtf8(it_start, frame_data.end(), is_double_byte, text_encoding);
     // If there is no more data, end here.
-    if (it_begin == frame_data.end()) return {desc, ""};
-
-    // Advance it_begin to the next byte(s) to find the next part
-    // TODO: Review this again to catch issues with malformed data (what if there is only one byte left?)
-    std::advance(it_begin, (is_double_byte)? 2 : 1);
-    it_end = (is_double_byte)
-                 ? findTerminatingIterator(it_begin, frame_data.end())
-                 : std::find(it_begin, frame_data.end(), 0x00);
-    std::string val = toUtf8(it_begin, it_end, text_encoding);
-
+    if (it_after_desc == frame_data.end()) return {desc, ""};
+    auto [val, it_after_val, lit_endian] =
+        readFieldToUtf8(it_after_desc, frame_data.end(), is_double_byte, text_encoding, little_endian.value_or(true));
     return {desc, val};
 }
 
@@ -278,11 +244,6 @@ std::tuple<std::string, uint8_t, std::string, std::vector<uint8_t>> APIC::parseA
     std::string desc;
     std::vector<uint8_t> picture_data{};
 
-    // if (text_encoding == 1 || text_encoding == 2) {
-    //     std::cerr << "UTF-16 is not yet supported.\n";
-    //     return {mime, picture, desc, picture_data};
-    // }
-
     // For UTF-16 the terminating byte is double, except for MIME type which is always ISO-8859-1 encoding
     const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
     // TODO: Refactor this code and check for safety with malformed data
@@ -290,7 +251,7 @@ std::tuple<std::string, uint8_t, std::string, std::vector<uint8_t>> APIC::parseA
                         ? frame_data.begin() + 3
                         : frame_data.begin() + 1;
     auto it_end = std::find(it_begin, frame_data.end(), 0x00);
-    mime = toUtf8(it_begin, it_end, 0);
+    mime = toUtf8(it_begin, it_end, 0); // Always ISO-8859-1 for MIME (int encoding = 0)
 
     it_begin = it_end;
     // If there is no more data, end here.

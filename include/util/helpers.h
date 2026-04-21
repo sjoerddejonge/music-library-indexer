@@ -78,7 +78,7 @@ std::string iso88591ToUtf8(Iterator begin, Iterator end) {
     return result;
 }
 
-// inline std::string utf16ToUtf8(const std::vector<uint8_t>& data) {
+// inline std::string utf16ToUtf8(const std::vector<uint8_t>& data, bool little_endian) {
 //     std::string result;
 //     return result;
 // }
@@ -98,8 +98,9 @@ std::string iso88591ToUtf8(Iterator begin, Iterator end) {
 //      1 for UTF-16
 //      2 for UTF-16BE
 //      3 for UTF-8
+// - little_endian: A bool used only for UTF-16 to indicate endianness, default = true.
 template <std::input_iterator Iterator>
-std::string toUtf8(Iterator begin, Iterator end, const int encoding) {
+std::string toUtf8(Iterator begin, Iterator end, const int encoding, bool little_endian = true) {
     switch (encoding) {
         case 0:
             // ISO-8859-1

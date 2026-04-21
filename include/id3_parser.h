@@ -144,6 +144,39 @@ private:
 //     std::string lyrics;
 // };
 
+// Helper function:
+
+// Reads a field from its start to null terminator or end, returns {field_string, iterator_past_terminator}.
+// The returned field_string is always in UTF-8.
+template <std::input_iterator Iterator>
+std::tuple<std::string, Iterator, std::optional<bool>> readFieldToUtf8(Iterator begin, Iterator end_of_vector, bool double_byte, int encoding, bool little_endian = true) {
+    // UTF-16 case: check for BOM (2 bytes) for endianness and skip BOM.
+    if (encoding == 1) {
+        if (std::next(begin, 1) != end_of_vector) {
+            uint16_t possible_bom = (*begin << 8) | *std::next(begin, 1);
+            if (possible_bom == 0xFFFE || possible_bom == 0xFEFF) {
+                little_endian = (possible_bom == 0xFFFE);
+                std::advance(begin, 2);
+            }
+        }
+    }
+    auto field_end = (double_byte)
+                      ? findTerminatingIterator(begin, end_of_vector)
+                      : std::find(begin, end_of_vector, 0x00);
+    std::string desc = toUtf8(begin, field_end, encoding, little_endian);
+    begin = field_end;
+    if ((double_byte && std::next(begin, 2) >= end_of_vector)
+        || (!double_byte && std::next(begin, 1) >= end_of_vector))
+    {
+        // End of vector, return Iterator end
+        if (encoding == 1) return {desc, end_of_vector, little_endian}; // Only return endianness in case of UTF-16.
+        return {desc, end_of_vector, std::nullopt};
+    }
+    std::advance(begin, (double_byte)? 2 : 1);
+    if (encoding == 1) return {desc, begin, little_endian}; // Only return endianness in case of UTF-16.
+    return {desc, begin, std::nullopt};
+};
+
 ID3Header parseId3Header(std::ifstream& fin, bool verbose = false);
 void extractId3Frames(std::ifstream& fin, uint32_t id3_size, nlohmann::json& song, bool verbose = false);
 std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uint8_t>& data);
