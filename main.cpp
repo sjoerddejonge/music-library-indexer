@@ -24,8 +24,7 @@
 
 int main() {
     const std::string project_root = PROJECT_ROOT;
-    // const std::string directory_path = project_root + "/music";
-    const std::string directory_path = "/Users/sjoerd/Music/DJ";
+    const std::string directory_path = project_root + "/music";
 
     // Recursive directory scanning:
     const nlohmann::json library = libraryToJson(directory_path);

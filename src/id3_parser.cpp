@@ -25,8 +25,6 @@ nlohmann::json id3ToJson(std::ifstream& fin, const bool verbose) {
     return song;
 }
 
-
-
 // Accepts an fstream at the start of an ID3 tag and parses the header(s).
 //
 // Arguments:
@@ -102,4 +100,270 @@ std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uin
     if (id == "APIC") return std::make_unique<APIC>(header, data);
     if (id[0] == 'T') return std::make_unique<TextInformationFrame>(header, data);
     return nullptr;
+}
+
+/**
+ *  ==========================
+ *  ID3 Frame Structs methods:
+ *  ==========================
+ */
+
+// -------------------------------------
+//      struct TextInformationFrame
+// -------------------------------------
+
+// Constructs a TextInformationFrame, throws on error.
+TextInformationFrame::TextInformationFrame(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
+    // Data should never empty
+    if (frame_data.empty()) throw std::runtime_error("TextInformationFrame: empty frame of type " + frame_header.frameIdToStr());
+    header = frame_header;
+    encoding = frame_data[0];
+    value = parseTextInformationFrame(frame_data, encoding);
+}
+
+// Append this frame to the JSON.
+void TextInformationFrame::toJson(nlohmann::json& song) const {
+    if (!value.empty()) song[header.frameIdToStr()] = value;
+}
+
+// (Private) Parse frame data into struct member variable(s).
+std::string TextInformationFrame::parseTextInformationFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
+    // TODO: Needs to account for scenarios where data is corrupted/not according to spec
+    const auto it_begin = frame_data.begin() + 1; // Skip first byte, used for encoder
+    const auto it_end = std::find(it_begin, frame_data.end(), 0x00);
+    // Passing iterators so I won't have to copy the vector
+    std::string result = toUtf8(it_begin, it_end, text_encoding);
+    return result;
+}
+
+// -------------------------------------
+//              struct TXXX
+// -------------------------------------
+
+// Constructs a TXXX, throws on error.
+TXXX::TXXX(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
+    // Data should never be empty
+    if (frame_data.empty()) throw std::runtime_error("TXXX: empty frame");
+    header = frame_header;
+    encoding = frame_data[0];
+    auto [desc, val] = parseTXXXFrame(frame_data, encoding);
+    description = std::move(desc);
+    value = std::move(val);
+}
+
+// Append this frame to the JSON.
+void TXXX::toJson(nlohmann::json& song) const {
+    if (!description.empty() || !value.empty()) song["TXXX"][description] = value;
+}
+
+// (Private) Parse frame data into struct member variable(s).
+std::pair<std::string, std::string> TXXX::parseTXXXFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
+    // text_encoding: 0 = ISO-8859-1, 1 = UTF-16, 2 = UTF-16BE, 3 = UTF-8
+    // For UTF-16 the terminating byte is double
+    const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
+    // TODO: Determine endianness from BOM for the UTF-16 case here
+
+    // TODO: Refactor this code in new function that reads a field (up to null terminator)
+    auto it_begin = (is_double_byte)
+                        ? frame_data.begin() + 3
+                        : frame_data.begin() + 1;
+    auto it_end = (is_double_byte)
+                      ? findTerminatingIterator(it_begin, frame_data.end())
+                      : std::find(it_begin, frame_data.end(), 0x00);
+    std::string desc = toUtf8(it_begin, it_end, text_encoding);
+
+    // We continue from the end position:
+    it_begin = it_end;
+
+    // If there is no more data, end here.
+    if (it_begin == frame_data.end()) return {desc, ""};
+
+    // Advance it_begin to the next byte(s) to find the next part
+    // TODO: Review this again to catch issues with malformed data (what if there is only one byte left?)
+    std::advance(it_begin, (is_double_byte)? 2 : 1);
+    it_end = (is_double_byte)
+                 ? findTerminatingIterator(it_begin, frame_data.end())
+                 : std::find(it_begin, frame_data.end(), 0x00);
+    std::string val = toUtf8(it_begin, it_end, text_encoding);
+
+    return {desc, val};
+}
+
+// -------------------------------------
+//              struct COMM
+// -------------------------------------
+
+// Constructs a COMM, throws on error.
+COMM::COMM(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
+    // Data should never be empty
+    if (frame_data.empty()) throw std::runtime_error("COMM: empty frame");
+    this->header = frame_header;
+    encoding = frame_data[0];
+    language = {frame_data[1], frame_data[2], frame_data[3]};
+    auto [desc, val] = parseCOMMFrame(frame_data, encoding);
+    description = std::move(desc);
+    value = std::move(val);
+}
+
+// Append this frame to the JSON.
+void COMM::toJson(nlohmann::json& song) const {
+    // TODO: Add language field to JSON
+    if (!description.empty() || !value.empty()) song["COMM"][description] = value;
+}
+
+// (Private) Parse frame data into struct member variable(s).
+std::pair<std::string, std::string> COMM::parseCOMMFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
+    // TODO: Looks almost identical to parseTXXXFrame(), maybe combine or inherit?
+    // For UTF-16 the terminating byte is double
+    const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
+    // TODO: Determine endianness from BOM for the UTF-16 case here
+
+    // TODO: Refactor this code in new function that reads a field (up to null terminator)
+    auto it_begin = (is_double_byte)
+                        ? frame_data.begin() + 6      // UTF-16: skip 6 bytes, encoder (1) + BOM (2) + language (3)
+                        : frame_data.begin() + 4;     // UTF-8 and ISO: skip 6 bytes, encoder (1) + language (3)
+    auto it_end = (is_double_byte)
+                      ? findTerminatingIterator(it_begin, frame_data.end())
+                      : std::find(it_begin, frame_data.end(), 0x00);
+    std::string desc = toUtf8(it_begin, it_end, text_encoding);
+
+    // We continue from the end position:
+    it_begin = it_end;
+
+    // If there is no more data, end here.
+    if (it_begin == frame_data.end()) return {desc, ""};
+
+    // Advance it_begin to the next byte(s) to find the next part
+    // TODO: Review this again to catch issues with malformed data (what if there is only one byte left?)
+    std::advance(it_begin, (is_double_byte)? 2 : 1);
+    it_end = (is_double_byte)
+                 ? findTerminatingIterator(it_begin, frame_data.end())
+                 : std::find(it_begin, frame_data.end(), 0x00);
+    std::string val = toUtf8(it_begin, it_end, text_encoding);
+
+    return {desc, val};
+}
+
+// -------------------------------------
+//              Struct APIC
+// -------------------------------------
+
+// Constructs an APIC, throws on error.
+APIC::APIC(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
+    // Data should never be empty
+    if (frame_data.empty()) throw std::runtime_error("APIC: empty frame");
+
+    this->header = frame_header;
+    encoding = frame_data[0];
+    auto [mime, picture, desc, picture_data] = parseAPICFrame(frame_data, encoding);
+    mime_type = std::move(mime);
+    picture_type = picture;
+    description = std::move(desc);
+    data = std::move(picture_data);
+}
+
+// Append this frame to the JSON.
+void APIC::toJson(nlohmann::json& song) const {
+    if (data.empty()) return;
+    song["APIC"]["MIME type"] = mime_type;
+    song["APIC"]["Picture type"] = picture_type;
+    song["APIC"]["Description"] = description;
+    song["APIC"]["Data"] = base64Encode(data);
+}
+
+// (Private) Parse frame data into struct member variable(s).
+std::tuple<std::string, uint8_t, std::string, std::vector<uint8_t>> APIC::parseAPICFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
+    std::string mime{};
+    uint8_t picture = 0;
+    std::string desc;
+    std::vector<uint8_t> picture_data{};
+
+    // // For UTF-16 the terminating byte is double
+    // const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
+    // // TODO: Refactor this code and check for safety with malformed data
+    // auto it_begin = (is_double_byte)
+    //                     ? frame_data.begin() + 3
+    //                     : frame_data.begin() + 1;
+    // auto it_end = (is_double_byte)
+    //                   ? findTerminatingIterator(it_begin, frame_data.end())
+    //                   : std::find(it_begin, frame_data.end(), 0x00);
+    // mime = toUtf8(it_begin, it_end, text_encoding);
+    //
+    // it_begin = it_end;
+    // // If there is no more data, end here.
+    // if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
+    // // TODO: This needs a check to see if it_end + 2 is a valid address
+    // std::advance(it_begin, (is_double_byte)? 2 : 1);
+    //
+    // picture = *it_begin;
+    //
+    // // TODO: This needs a check to see if it_end + 2 is a valid address
+    // std::advance(it_begin, (is_double_byte)? 2 : 1);
+    // // If there is no more data, end here.
+    // if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
+    //
+    // it_end = (is_double_byte)
+    //     ? findTerminatingIterator(it_begin, frame_data.end())
+    //     : std::find(it_begin, frame_data.end(), 0x00);
+    //
+    // desc = toUtf8(it_begin, it_end, text_encoding);
+    //
+    // it_begin = it_end;
+    // // If there is no more data, end here.
+    // if (it_begin == frame_data.end()) return {mime, picture, desc, picture_data};
+    // // TODO: This needs a check to see if it_end + 2 is a valid address
+    // std::advance(it_begin, (is_double_byte)? 2 : 1);
+    //
+    // it_end = frame_data.end();
+    // picture_data = std::vector<uint8_t>(it_begin, it_end);
+
+    switch (text_encoding) {
+        case 0:
+            // ISO-8859-1, terminated with $00 and 1 byte per char.
+        case 3: {
+            // UTF-8, terminated with $00 and 1 byte per char.
+            auto it_begin = frame_data.begin() + 1; // Skip first byte, used for encoder
+            auto it_end = std::find(it_begin, frame_data.end(), '\0');
+            mime = std::string(it_begin, it_end);
+            it_begin = it_end + 1;
+
+            // If there is no more data, end here.
+            if (it_begin == frame_data.end()) break;
+
+            picture = *it_begin;
+            ++it_begin;
+
+            it_end = std::find(it_begin, frame_data.end(), '\0');
+            desc = std::string(it_begin, it_end);
+
+            it_begin = it_end + 1;
+
+            // If there is no more data, end here.
+            if (it_begin == frame_data.end()) break;
+
+            it_end = frame_data.end();
+            picture_data = std::vector<uint8_t>(it_begin, it_end);
+            break;
+        }
+        case 1: {
+            // UTF-16, terminated with $00 00 and 2 bytes per char. With byte order mark (BOM)
+            // determining endianness. BOM is either FE FE (little endian) or FE FF (big endian).
+            // TODO: Add UTF-16 support.
+            std::cerr << "UTF-16 text is not yet supported.\n";
+            break;
+        }
+        case 2: {
+            // UTF-16BE, terminated with $00 00 and 2 bytes per char.
+            // do magic stuff
+            // TODO: Add UTF-16BE support.
+            std::cerr << "UTF-16BE text is not yet supported.\n";
+            break;
+        }
+        default: {
+            std::cerr << "Text encoding was not recognized.\n";
+            break;
+        }
+    }
+
+    return {mime, picture, desc, picture_data};
 }

@@ -21,6 +21,7 @@ std::string charsToStr(const std::array<char, N>& value) {
 template <std::integral T>
 T fromBigEndianInt(T value) {
     if constexpr (std::endian::native == std::endian::big) {
+        // ReSharper disable once CppDFAUnreachableCode
         return value;
     } else {
         return std::byteswap(value);
@@ -40,6 +41,7 @@ inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
 // Convert float from big endian to native endianness.
 inline float fromBigEndianFloat(const float value) {
     if constexpr (std::endian::native == std::endian::big) {
+        // ReSharper disable once CppDFAUnreachableCode
         return value;
     } else {
         auto asInt = std::bit_cast<uint32_t>(value);
@@ -49,7 +51,7 @@ inline float fromBigEndianFloat(const float value) {
 }
 
 // Find terminating double byte $00 00 in a vector of bytes.
-template <typename Iterator>
+template <std::input_iterator Iterator>
 Iterator findTerminatingIterator(Iterator begin, Iterator end) {
     Iterator it = begin;
     while (it != end) {
@@ -62,7 +64,7 @@ Iterator findTerminatingIterator(Iterator begin, Iterator end) {
     return end;
 }
 
-template <typename Iterator>
+template <std::input_iterator Iterator>
 std::string iso88591ToUtf8(Iterator begin, Iterator end) {
     std::string result;
     for (Iterator it = begin; it != end; ++it) {
@@ -96,7 +98,7 @@ std::string iso88591ToUtf8(Iterator begin, Iterator end) {
 //      1 for UTF-16
 //      2 for UTF-16BE
 //      3 for UTF-8
-template <typename Iterator>
+template <std::input_iterator Iterator>
 std::string toUtf8(Iterator begin, Iterator end, const int encoding) {
     switch (encoding) {
         case 0:

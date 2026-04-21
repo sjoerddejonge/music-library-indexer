@@ -13,6 +13,11 @@
 #include <iostream>
 #include <map>
 
+// Reads the ifstream of an AIFF to the point start of the ID3 tag.
+//
+// Arguments:
+// fin: The ifstream of an .aiff file.
+// verbose: (Optional) bool to toggle console output.
 void locateId3(std::ifstream& fin, const bool verbose) {
     if (fin) {
         formChunk form_chunk{};
