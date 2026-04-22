@@ -20,7 +20,7 @@
 nlohmann::json id3ToJson(std::ifstream& fin, const IndexOptions& options) {
     nlohmann::json song;
     // Extract ID3 header.
-    const ID3Header id3_header = parseId3Header(fin);
+    const ID3Header id3_header = parseId3Header(fin, options);
     // Extract ID3 frames and add to JSON.
     extractId3Frames(fin, fromSynchsafe32(id3_header.size), song, options);
     return song;
@@ -87,7 +87,7 @@ void extractId3Frames(std::ifstream& fin, const uint32_t id3_size, nlohmann::jso
         std::vector<uint8_t> frame_data(size);
         fin.read(reinterpret_cast<char*>(frame_data.data()), fromSynchsafe32(id3_frame_header.size));
 
-        if (const auto frame = makeFrame(id3_frame_header, frame_data)) {
+        if (const auto frame = makeFrame(id3_frame_header, frame_data, options)) {
             frame->toJson(song);
         }
     }

@@ -25,17 +25,19 @@
 
 int main() {
     const std::string project_root = PROJECT_ROOT;
-    const std::string directory_path = project_root + "/music";
+    // const std::string directory_path = project_root + "/music";
+    constexpr std::string directory_path = "/Users/sjoerd/Music/DJ";
 
     const IndexOptions options = {
         .verbose = false,
         .subdirectories = true,
         .include_apic = false,
+        .output = Output::FILE,
     };
 
     // Recursive directory scanning:
     const nlohmann::json library = libraryToJson(directory_path, options);
-    std::cout << "Recursive library JSON: \n" << library.dump(4) << std::endl;
+    if (options.output == Output::CONSOLE) std::cout << "Output JSON: \n" << library.dump(4) << std::endl;
 
     return 0;
 }

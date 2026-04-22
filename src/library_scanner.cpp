@@ -25,13 +25,13 @@ nlohmann::json libraryToJson(const std::string& directory_path, const IndexOptio
 
     nlohmann::json library = nlohmann::json::array();
 
-    std::cout << "Scanning files in: " << directory_path << "\n";
+    std::cout << "Reading files in: \"" << directory_path << "\"\n";
 
     // Lambda function for scanning the directories (recursive or not):
     auto scan = [&](const auto& iterator) {
         for (auto const& dir_entry : iterator) {
             if (dir_entry.is_directory()) {
-                std::cout << "Scanning files in: " << dir_entry.path() << "\n";
+                std::cout << "Reading files in: " << dir_entry.path() << "\n";
             }
             // AIFF files
             if (dir_entry.path().extension() == ".aiff" || dir_entry.path().extension() == ".aif") {
@@ -42,7 +42,7 @@ nlohmann::json libraryToJson(const std::string& directory_path, const IndexOptio
                 }
                 try {
                     locateId3(fin); // Skip ifstream to the start of the ID3 tag.
-                    const nlohmann::json song = id3ToJson(fin);
+                    const nlohmann::json song = id3ToJson(fin, options);
                     if (!song.is_null()) library.push_back(song);
                 }
                 catch (const std::exception& e) {
