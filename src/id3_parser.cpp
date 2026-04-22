@@ -113,7 +113,7 @@ std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uin
 //      struct TextInformationFrame
 // -------------------------------------
 
-// Constructs a TextInformationFrame, throws on error.
+// Constructs a TextInformationFrame, throws error on empty data.
 TextInformationFrame::TextInformationFrame(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
     // Data should never empty
     if (frame_data.empty()) throw std::runtime_error("TextInformationFrame: empty frame of type " + frame_header.frameIdToStr());
@@ -142,7 +142,7 @@ std::string TextInformationFrame::parseTextInformationFrame(const std::vector<ui
 //              struct TXXX
 // -------------------------------------
 
-// Constructs a TXXX, throws on error.
+// Constructs a TXXX, throws error on empty data.
 TXXX::TXXX(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
     // Data should never be empty
     if (frame_data.empty()) throw std::runtime_error("TXXX: empty frame");
@@ -178,7 +178,7 @@ std::pair<std::string, std::string> TXXX::parseTXXXFrame(const std::vector<uint8
 //              struct COMM
 // -------------------------------------
 
-// Constructs a COMM, throws on error.
+// Constructs a COMM, throws error on empty data.
 COMM::COMM(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
     // Data should never be empty
     if (frame_data.empty()) throw std::runtime_error("COMM: empty frame");
@@ -215,7 +215,7 @@ std::pair<std::string, std::string> COMM::parseCOMMFrame(const std::vector<uint8
 //              Struct APIC
 // -------------------------------------
 
-// Constructs an APIC, throws on error.
+// Constructs an APIC, throws error on empty data.
 APIC::APIC(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data) {
     // Data should never be empty
     if (frame_data.empty()) throw std::runtime_error("APIC: empty frame");

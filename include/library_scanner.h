@@ -9,6 +9,6 @@
 #include "options.h"
 #include "util/json.hpp"
 
-nlohmann::json libraryToJson(const std::string& directory_path, const IndexOptions& options = {});
+nlohmann::json libraryToJson(const std::string& directory_path, const IndexOptions& options);
 
 #endif //MLI_LIBRARY_SCANNER_H

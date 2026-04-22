@@ -25,8 +25,7 @@
 
 int main() {
     const std::string project_root = PROJECT_ROOT;
-    // const std::string directory_path = project_root + "/music";
-    constexpr std::string directory_path = "/Users/sjoerd/Music/DJ";
+    const std::string directory_path = project_root + "/music";
 
     const IndexOptions options = {
         .verbose = false,
@@ -38,6 +37,15 @@ int main() {
     // Recursive directory scanning:
     const nlohmann::json library = libraryToJson(directory_path, options);
     if (options.output == Output::CONSOLE) std::cout << "Output JSON: \n" << library.dump(4) << std::endl;
+    else if (options.output == Output::FILE) {
+        std::string filename = directory_path + options.output_path;
+        std::cout << "File written to: " + filename << std::endl;
+        std::ofstream outfile(directory_path + '/' + options.output_path, std::ios::out);
+        if (outfile.is_open()) {
+            outfile << library.dump(4) << std::endl;
+        }
+
+    }
 
     return 0;
 }
