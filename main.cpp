@@ -23,17 +23,33 @@
 #include "library_scanner.h"
 #include "options.h"
 
-int main() {
+void mliIndex(const std::filesystem::path& directory_path, const IndexOptions& options);
+
+int main(const int argc, char *argv[]) {
     const std::string project_root = PROJECT_ROOT;
+
+    /* Use this directory_path when running app from the project: */
     const std::filesystem::path directory_path = project_root + "/music";
 
-    const IndexOptions options = {
-        .verbose = false,
-        .subdirectories = true,
-        .include_apic = false,
-        .output_type = Output::FILE,
-    };
+    /* Use this directory_path when building the project for release: */
+    // const std::filesystem::path directory_path = std::filesystem::current_path();
 
+    if (argc > 1) {
+        if (strcmp(argv[1], "index") == 0) {
+            const IndexOptions options = {
+                .verbose = false,
+                .subdirectories = true,
+                .include_apic = false,
+                .output_type = Output::FILE,
+            };
+            mliIndex(directory_path, options);
+        }
+    }
+
+    return 0;
+}
+
+void mliIndex(const std::filesystem::path& directory_path, const IndexOptions& options) {
     // Recursive directory scanning:
     const nlohmann::json library = libraryToJson(directory_path, options);
 
@@ -54,6 +70,4 @@ int main() {
         }
         outfile.close();
     }
-
-    return 0;
 }
