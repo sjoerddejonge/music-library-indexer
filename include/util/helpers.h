@@ -11,21 +11,6 @@
 #ifndef MUSIC_LIBRARY_INDEXER_HELPERS_H
 #define MUSIC_LIBRARY_INDEXER_HELPERS_H
 
-// Helper functions forward declarations
-template <size_t N>
-std::string charsToStr(const std::array<char, N>& value);
-template <std::integral T>
-T fromBigEndianInt(T value);
-inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value);
-inline float fromBigEndianFloat(float value);
-template <std::input_iterator Iterator>
-Iterator findTerminatingIterator(Iterator begin, Iterator end);
-template <std::input_iterator Iterator>
-std::string iso88591ToUtf8(Iterator begin, Iterator end);
-template <std::input_iterator Iterator>
-std::string utf16ToUtf8(Iterator begin, Iterator end, bool little_endian);
-template <std::input_iterator Iterator>
-std::string toUtf8(Iterator begin, Iterator end, int encoding, bool little_endian = false);
 
 
 
@@ -199,7 +184,7 @@ std::string utf16ToUtf8(Iterator begin, Iterator end, bool little_endian) {
 // - little_endian: A bool used only for UTF-16 to indicate endianness, default = false
 //   as recommended by section 4.3 https://www.rfc-editor.org/rfc/rfc2781.
 template <std::input_iterator Iterator>
-std::string toUtf8(Iterator begin, Iterator end, const int encoding, bool little_endian) {
+std::string toUtf8(Iterator begin, Iterator end, const int encoding, bool little_endian = false) {
     switch (encoding) {
         case 0:
             // ISO-8859-1
@@ -207,11 +192,9 @@ std::string toUtf8(Iterator begin, Iterator end, const int encoding, bool little
         case 1:
             // UTF-16
             return utf16ToUtf8(begin, end, little_endian);
-            break;
         case 2:
             // UTF-16BE
             return utf16ToUtf8(begin, end, false);
-            break;
         case 3:
             // UTF-8
             return {begin, end};
@@ -222,29 +205,30 @@ std::string toUtf8(Iterator begin, Iterator end, const int encoding, bool little
     return {};
 }
 
-// If the filename_in already exists in directory path, make it unique
-inline std::filesystem::path makeFilenameUnique(const std::filesystem::path& filename_in, const std::filesystem::path& path) {
+// Creates a unique, full export path by combining a file name and a path to a directory.
+//
+// Arguments:
+// filename_in:     Filename (including extension) as a std::filesystem::path.
+// path:            Path to the directory the file should be in as std::filesystem::path.
+inline std::filesystem::path makeUniqueFilePath(const std::filesystem::path& filename_in, const std::filesystem::path& path) {
     std::filesystem::path filename_out = filename_in;
     // Check whether `path` is a directory.
     if (!std::filesystem::is_directory(path)) {
-        std::cerr << "Error in makeFilenameUnique: Provide a valid path.\n";
+        std::cerr << "Error in createUniqueFilePath: Provide a valid path to a directory.\n";
         return filename_out;
     }
     std::filesystem::path full_path = path;
     full_path /= filename_out;
     int i = 0;
     while (std::filesystem::exists(full_path)) {
-        std::filesystem::path filename = filename_out.filename();
-        std::filesystem::path extension = full_path.extension();
         filename_out = filename_in.stem();
         filename_out += "_";
         filename_out += std::to_string(i);
-        filename_out += extension;
+        filename_out += full_path.extension();
         full_path.replace_filename(filename_out.filename());
         ++i;
     }
-
-    return filename_out;
+    return full_path;
 }
 
 #endif //MUSIC_LIBRARY_INDEXER_HELPERS_H

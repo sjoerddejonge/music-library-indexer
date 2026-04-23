@@ -30,14 +30,10 @@ struct IndexOptions {
     std::string output_filename = createFilename();
 
 private:
-    std::string createFilename() const {
+     static std::string createFilename() {
          const std::string suffix = "mli_snapshot.json";
-         std::stringstream ss;
          std::chrono::sys_time<std::chrono::nanoseconds> now = std::chrono::system_clock::now();
-         ss << std::format("{:%Y%m%d}", now);
-         std::string filename = ss.str() + "_" + suffix;
-         if (output_type == Output::FILE) std::cout << "Output filename: " + filename + "\n";
-         return filename;
+         return std::format("{:%Y%m%d}_{}", now, suffix);
     }
 };
 

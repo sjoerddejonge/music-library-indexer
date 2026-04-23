@@ -4,11 +4,10 @@ directories, and extracts their ID3 tags.
 Still a **work-in-progress**.  
 
 ## 1. Getting started
-In `/music` you will find the example file `sample_break.aiff`,
-as well as two directories `/test1` and `/test1/test2`. The
-`test2` directory has another song `sample_break.aiff`.
+In `/music` you will find the some example `.aiff` files that
+all have tags.
 
-Running this program will read scan through the directories in
+Running this program will scan through the directories in
 `/music` and extract the ID3 tags.
 
 ## 2. Features

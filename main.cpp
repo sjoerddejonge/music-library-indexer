@@ -43,17 +43,14 @@ int main() {
     // Output as file:
     else if (options.output_type == Output::FILE) {
         // Create a unique filename for directory 'directory_path':
-        std::filesystem::path filename = makeFilenameUnique(options.output_filename, directory_path);
-        
-        std::filesystem::path full_output_path = directory_path;
-        full_output_path /= filename;
-        std::cout << "File written to: " + full_output_path.string() << std::endl;
-        std::ofstream outfile(full_output_path, std::ios::out);
+        std::filesystem::path output_path = makeUniqueFilePath(options.output_filename, directory_path);
+        std::cout << "File written to: " + output_path.string() << std::endl;
+        std::ofstream outfile(output_path, std::ios::out);
         if (outfile.is_open()) {
             outfile << library.dump(4) << std::endl;
         }
         if (!outfile.good()) {
-            // TODO: What now?
+            std::cerr << "Failed to write to file: " << output_path.string() << std::endl;
         }
         outfile.close();
     }
