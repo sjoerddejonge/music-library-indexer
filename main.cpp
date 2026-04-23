@@ -19,32 +19,43 @@
 #include <fstream>
 #include "aiff_reader.h"
 #include "id3_parser.h"
-#include "util/json.hpp"
+#include "include/nlohmann/json.hpp"
 #include "library_scanner.h"
 #include "options.h"
 
 int main() {
     const std::string project_root = PROJECT_ROOT;
-    const std::string directory_path = project_root + "/music";
+    const std::filesystem::path directory_path = project_root + "/music";
 
     const IndexOptions options = {
         .verbose = false,
         .subdirectories = true,
         .include_apic = false,
-        .output = Output::FILE,
+        .output_type = Output::FILE,
     };
 
     // Recursive directory scanning:
     const nlohmann::json library = libraryToJson(directory_path, options);
-    if (options.output == Output::CONSOLE) std::cout << "Output JSON: \n" << library.dump(4) << std::endl;
-    else if (options.output == Output::FILE) {
-        std::string filename = directory_path + options.output_path;
-        std::cout << "File written to: " + filename << std::endl;
-        std::ofstream outfile(directory_path + '/' + options.output_path, std::ios::out);
+
+    // Output in console:
+    if (options.output_type == Output::CONSOLE) std::cout << "Output JSON: \n" << library.dump(4) << std::endl;
+
+    // Output as file:
+    else if (options.output_type == Output::FILE) {
+        // Create a unique filename for directory 'directory_path':
+        std::filesystem::path filename = makeFilenameUnique(options.output_filename, directory_path);
+        
+        std::filesystem::path full_output_path = directory_path;
+        full_output_path /= filename;
+        std::cout << "File written to: " + full_output_path.string() << std::endl;
+        std::ofstream outfile(full_output_path, std::ios::out);
         if (outfile.is_open()) {
             outfile << library.dump(4) << std::endl;
         }
-
+        if (!outfile.good()) {
+            // TODO: What now?
+        }
+        outfile.close();
     }
 
     return 0;

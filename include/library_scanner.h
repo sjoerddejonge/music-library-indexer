@@ -7,7 +7,7 @@
 #include <string>
 
 #include "options.h"
-#include "util/json.hpp"
+#include "nlohmann/json.hpp"
 
 nlohmann::json libraryToJson(const std::string& directory_path, const IndexOptions& options);
 

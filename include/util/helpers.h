@@ -6,9 +6,28 @@
 #include <bit>
 #include <concepts>
 #include <string>
+#include <filesystem>
 
 #ifndef MUSIC_LIBRARY_INDEXER_HELPERS_H
 #define MUSIC_LIBRARY_INDEXER_HELPERS_H
+
+// Helper functions forward declarations
+template <size_t N>
+std::string charsToStr(const std::array<char, N>& value);
+template <std::integral T>
+T fromBigEndianInt(T value);
+inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value);
+inline float fromBigEndianFloat(float value);
+template <std::input_iterator Iterator>
+Iterator findTerminatingIterator(Iterator begin, Iterator end);
+template <std::input_iterator Iterator>
+std::string iso88591ToUtf8(Iterator begin, Iterator end);
+template <std::input_iterator Iterator>
+std::string utf16ToUtf8(Iterator begin, Iterator end, bool little_endian);
+template <std::input_iterator Iterator>
+std::string toUtf8(Iterator begin, Iterator end, int encoding, bool little_endian = false);
+
+
 
 // Convert any std::array<char, N> to std::string
 template <size_t N>
@@ -180,7 +199,7 @@ std::string utf16ToUtf8(Iterator begin, Iterator end, bool little_endian) {
 // - little_endian: A bool used only for UTF-16 to indicate endianness, default = false
 //   as recommended by section 4.3 https://www.rfc-editor.org/rfc/rfc2781.
 template <std::input_iterator Iterator>
-std::string toUtf8(Iterator begin, Iterator end, const int encoding, bool little_endian = false) {
+std::string toUtf8(Iterator begin, Iterator end, const int encoding, bool little_endian) {
     switch (encoding) {
         case 0:
             // ISO-8859-1
@@ -201,6 +220,31 @@ std::string toUtf8(Iterator begin, Iterator end, const int encoding, bool little
             break;
     }
     return {};
+}
+
+// If the filename_in already exists in directory path, make it unique
+inline std::filesystem::path makeFilenameUnique(const std::filesystem::path& filename_in, const std::filesystem::path& path) {
+    std::filesystem::path filename_out = filename_in;
+    // Check whether `path` is a directory.
+    if (!std::filesystem::is_directory(path)) {
+        std::cerr << "Error in makeFilenameUnique: Provide a valid path.\n";
+        return filename_out;
+    }
+    std::filesystem::path full_path = path;
+    full_path /= filename_out;
+    int i = 0;
+    while (std::filesystem::exists(full_path)) {
+        std::filesystem::path filename = filename_out.filename();
+        std::filesystem::path extension = full_path.extension();
+        filename_out = filename_in.stem();
+        filename_out += "_";
+        filename_out += std::to_string(i);
+        filename_out += extension;
+        full_path.replace_filename(filename_out.filename());
+        ++i;
+    }
+
+    return filename_out;
 }
 
 #endif //MUSIC_LIBRARY_INDEXER_HELPERS_H

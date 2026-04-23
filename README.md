@@ -90,10 +90,11 @@ under MIT License.
 `[x]` Iterate through all files in directory to extract tags.  
 `[x]` Iterate through all subfolders to extract all tags.   
 `[ ]` Accept input arguments (`mli index`, `mli index --verbose`).  
-`[ ]` Write the JSON to a file.  
+`[x]` Write the JSON to a file.  
 
 ### Wishlist
 `[x]` Decouple the ID3 parsing logic from the AIFF reader.  
+`[ ]` Fix code TODOs  
 `[ ]` Add support for ALL ID3 frames.  
 `[ ]` Add support for other music files that can contain ID3.  
 `[x]` Add support for `UTF-16(BE)` text encoding.

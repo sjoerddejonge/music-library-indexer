@@ -26,17 +26,17 @@ struct IndexOptions {
     bool verbose = false;
     bool subdirectories = true;
     bool include_apic = false;
-    Output output = Output::FILE;
-    std::string output_path = createFilename();
+    Output output_type = Output::FILE;
+    std::string output_filename = createFilename();
 
 private:
-     [[nodiscard]] std::string createFilename() const {
+    std::string createFilename() const {
          const std::string suffix = "mli_snapshot.json";
          std::stringstream ss;
          std::chrono::sys_time<std::chrono::nanoseconds> now = std::chrono::system_clock::now();
          ss << std::format("{:%Y%m%d}", now);
          std::string filename = ss.str() + "_" + suffix;
-         if (output == Output::FILE) std::cout << "Output filename: " + filename + "\n";
+         if (output_type == Output::FILE) std::cout << "Output filename: " + filename + "\n";
          return filename;
     }
 };

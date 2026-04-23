@@ -9,7 +9,7 @@
 #include "options.h"
 #include "util/base64.h"
 #include "util/helpers.h"
-#include "util/json.hpp"
+#include "../include/nlohmann/json.hpp"
 
 
 // Append the ID3 tag to the JSON as item it.

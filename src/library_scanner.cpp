@@ -8,7 +8,7 @@
 #include <fstream>
 
 #include "library_scanner.h"
-#include "util/json.hpp"
+#include "nlohmann/json.hpp"
 #include "aiff_reader.h"
 #include "id3_parser.h"
 
