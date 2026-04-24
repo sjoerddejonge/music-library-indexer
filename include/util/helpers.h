@@ -43,11 +43,10 @@ inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
 }
 
 inline uint32_t fromArrayToInt32(const std::array<uint8_t, 4>& value) {
-    // TODO: Review this code in PR (right now it just does big endian):
-    return static_cast<uint32_t>(value[3]) |
-            (static_cast<uint32_t>(value[2]) << 8) |
-            (static_cast<uint32_t>(value[1]) << 16) |
-            (static_cast<uint32_t>(value[0]) << 24);
+    return static_cast<uint32_t>(value[0]) |
+            (static_cast<uint32_t>(value[1]) << 8) |
+            (static_cast<uint32_t>(value[2]) << 16) |
+            (static_cast<uint32_t>(value[3]) << 24);
 }
 
 // Convert float from big endian to native endianness.

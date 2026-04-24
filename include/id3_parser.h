@@ -36,13 +36,13 @@ struct ID3Header {
                                                 // d Footer present
     std::array<uint8_t, 4> size;            // 32 bits (for v2.4.0 Synchsafe) integer (4 * %0xxxxxxx)
 
-    // Get the size of the ID3 header as int32_t.
+    // Get the size of the ID3 header as int32_t. Converts from big endian to native endian.
     [[nodiscard]] uint32_t getSize() const {
         if (version[0] >= 4) {
             return fromSynchsafe32(size);
         }
         // Return array of four uint8_t as one uint32_t
-        return fromArrayToInt32(size);
+        return fromBigEndianInt(fromArrayToInt32(size));
     }
 };
 #pragma pack(pop)
@@ -58,10 +58,10 @@ struct ID3FrameHeader {
         return charsToStr(frame_id);
     }
 
-    // Get the size of the ID3 frame header as int32_t.
+    // Get the size of the ID3 frame header as int32_t. Converts from big endian to native endian.
     [[nodiscard]] uint32_t getSize(const bool synchsafe) const {
         if (synchsafe) return fromSynchsafe32(size);
-        return fromArrayToInt32(size);
+        return fromBigEndianInt(fromArrayToInt32(size));
     }
 };
 #pragma pack(pop)

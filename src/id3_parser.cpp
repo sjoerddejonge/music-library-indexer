@@ -53,7 +53,7 @@ ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
         // Skip ahead extended_header_size bytes from current position:
         const uint32_t size_to_skip = (id3_header.version[0] >= 4)
             ? fromSynchsafe32(extended_header_size)
-            : fromArrayToInt32(extended_header_size);
+            : fromBigEndianInt(fromArrayToInt32(extended_header_size));
         fin.seekg(size_to_skip, std::ios_base::cur);
     }
 
