@@ -37,7 +37,7 @@ inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
     const uint32_t a = (value[0] & 0b01111111) << 21;
     const uint32_t b = (value[1] & 0b01111111) << 14;
     const uint32_t c = (value[2] & 0b01111111) << 7;
-    const uint32_t d = (value[3] & 0b01111111);
+    const uint32_t d = value[3] & 0b01111111;
     const uint32_t result = a | b | c | d;
     return result;
 }

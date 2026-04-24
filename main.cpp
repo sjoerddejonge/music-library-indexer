@@ -26,10 +26,8 @@
 #include "options.h"
 #include "program_info.h"
 
-// TODO: Add arg '<PATH>' for changing target directory (and verify input)
 // TODO: Fix errors in frame header parsing that print non-existing frame ids when running --verbose
-// TODO: Fix to-dos in UTF-16 converter
-// TODO: Look into warnings given at build
+// TODO: Fix to-dos in UTF-16 converter for edge cases
 // TODO: Rewrite README
 // TODO: Tests:
 //      TODO: Add UTF-16 surrogate characters to tags of example songs in /music
@@ -42,11 +40,11 @@ int main(const int argc, char *argv[]) {
     #ifdef NDEBUG
         /* BUILD */
         /* Use this directory_path when building the project for release: */
-        const std::filesystem::path directory_path = std::filesystem::current_path();
+        std::filesystem::path directory_path = std::filesystem::current_path();
     #else
         /* DEVELOP */
         /* Use this directory_path when running app from the project: */
-        const std::filesystem::path directory_path = std::filesystem::path(PROJECT_ROOT) / "music";
+        std::filesystem::path directory_path = std::filesystem::path(PROJECT_ROOT) / "music";
     #endif
 
     // Parsing input arguments
@@ -70,6 +68,17 @@ int main(const int argc, char *argv[]) {
                 }
                 if (strcmp(argv[i], "--shallow") == 0) {
                     options.subdirectories = false;
+                }
+                else {
+                    std::filesystem::path p = argv[i];
+                    // <PATH> input argument
+                    if (std::filesystem::is_directory(p)) {
+                        directory_path = p;
+                    }
+                    else {
+                        std::cerr << std::format("Error: unknown arg '{}' for command '{}'. See '{} help'.\n", argv[i], argv[0], program::name());
+                        return 1;
+                    }
                 }
             }
             commands::index(directory_path, options);

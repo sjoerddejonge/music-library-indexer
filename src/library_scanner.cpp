@@ -17,12 +17,15 @@
 // Arguments:
 // - directory_path: The path to the directory to scan for music files.
 // - options: A struct with options for running the command. For default see include/options.h
-nlohmann::json libraryToJson(const std::string& directory_path, const IndexOptions& options) {
-    // TODO: Verify directory_path after adding user input of directory_path
+nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const IndexOptions& options) {
+    // Verify directory_path after adding user input of directory_path.
+    // This is a redundant safety check.
+    if (!std::filesystem::is_directory(directory_path)) {
+        std::cerr << "Directory \"" << directory_path << "\" does not exist.\n";
+        throw std::runtime_error("Directory does not exist.");
+    }
 
-    // Create a path:
-    const auto path = std::filesystem::path(directory_path);
-
+    // Initialize JSON as array
     nlohmann::json library = nlohmann::json::array();
 
     std::cout << "Reading files in: \"" << directory_path << "\"\n";
@@ -55,10 +58,10 @@ nlohmann::json libraryToJson(const std::string& directory_path, const IndexOptio
     };
 
     if (options.subdirectories) { // Recursive scanning
-        const std::filesystem::recursive_directory_iterator iterator{path};
+        const std::filesystem::recursive_directory_iterator iterator{directory_path};
         scan(iterator);
     } else { // Non-recursive scanning
-        const std::filesystem::directory_iterator iterator{path};
+        const std::filesystem::directory_iterator iterator{directory_path};
         scan(iterator);
     }
 
