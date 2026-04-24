@@ -63,10 +63,10 @@ int main(const int argc, char *argv[]) {
                 if (strcmp(argv[i], "-a") == 0) {
                     options.include_apic = true;
                 }
-                if (strcmp(argv[i], "-v" ) == 0 || strcmp(argv[i], "--verbose") == 0) {
+                else if (strcmp(argv[i], "-v" ) == 0 || strcmp(argv[i], "--verbose") == 0) {
                     options.verbose = true;
                 }
-                if (strcmp(argv[i], "--shallow") == 0) {
+                else if (strcmp(argv[i], "--shallow") == 0) {
                     options.subdirectories = false;
                 }
                 else {
