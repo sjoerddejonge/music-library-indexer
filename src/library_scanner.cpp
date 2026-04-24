@@ -27,10 +27,11 @@ nlohmann::json libraryToJson(const std::string& directory_path, const IndexOptio
 
     std::cout << "Reading files in: \"" << directory_path << "\"\n";
 
+    // TODO: Add check for permission to access directory
     // Lambda function for scanning the directories (recursive or not):
     auto scan = [&](const auto& iterator) {
         for (auto const& dir_entry : iterator) {
-            if (dir_entry.is_directory()) {
+            if (dir_entry.is_directory() && options.subdirectories) {
                 std::cout << "Reading files in: " << dir_entry.path() << "\n";
             }
             // AIFF files

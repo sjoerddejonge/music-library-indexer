@@ -26,16 +26,14 @@
 #include "options.h"
 #include "program_info.h"
 
-// TODO: Add arg '-a' for APIC
 // TODO: Add arg '<PATH>' for changing target directory (and verify input)
-// TODO: Add arg '-v' or '--verbose'
-// TODO: Add arg '--shallow' for non-recursive
+// TODO: Fix errors in frame header parsing that print non-existing frame ids when running --verbose
 // TODO: Fix to-dos in UTF-16 converter
 // TODO: Look into warnings given at build
 // TODO: Rewrite README
 // TODO: Tests:
 //      TODO: Add UTF-16 surrogate characters to tags of example songs in /music
-//      TODO: Add corrupted tags to example songs in /music
+//      TODO: Add corrupted tags to example songs in /music for testing
 
 // argc is always at least 1
 int main(const int argc, char *argv[]) {
@@ -48,20 +46,37 @@ int main(const int argc, char *argv[]) {
     #else
         /* DEVELOP */
         /* Use this directory_path when running app from the project: */
-        const std::filesystem::path directory_path = std::string(PROJECT_ROOT) / "music";
+        const std::filesystem::path directory_path = std::filesystem::path(PROJECT_ROOT) / "music";
     #endif
 
     // Parsing input arguments
     if (argc > 1) {
         // Parse the command to run
-        int cmd = 0;
         if (strcmp(argv[1], "index") == 0) {
             // Index command
-            cmd = 1;
+            IndexOptions options = {
+                .verbose = false,
+                .subdirectories = true,
+                .include_apic = false,
+                .output_type = Output::FILE,
+            };
+            // Parse args
+            for (int i = 2; i < argc; i++) {
+                if (strcmp(argv[i], "-a") == 0) {
+                    options.include_apic = true;
+                }
+                if (strcmp(argv[i], "-v" ) == 0 || strcmp(argv[i], "--verbose") == 0) {
+                    options.verbose = true;
+                }
+                if (strcmp(argv[i], "--shallow") == 0) {
+                    options.subdirectories = false;
+                }
+            }
+            commands::index(directory_path, options);
         }
         else if (strcmp(argv[1], "help") == 0) {
             // Help command
-            cmd = 2;
+            commands::help();
         }
         else {
             // Unknown command
@@ -69,35 +84,9 @@ int main(const int argc, char *argv[]) {
                     program::name(), argv[1], program::name(), program::name());
             return 1;
         }
-
-        // Run the command
-        switch (cmd) {
-            case 1: {
-                const IndexOptions options = {
-                    .verbose = false,
-                    .subdirectories = true,
-                    .include_apic = false,
-                    .output_type = Output::FILE,
-                };
-                commands::index(directory_path, options);
-                break;
-            }
-            case 2: {
-                commands::help();
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-
     } else {
         commands::help();
     }
 
     return 0;
-}
-
-void parseArgs(int argc, char *argv[]) {
-    //
 }

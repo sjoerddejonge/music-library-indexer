@@ -15,7 +15,7 @@ void program::init(const int argc, char *argv[]) {
     }
 }
 
-// Get the runtime name of the program.
+// Get the runtime name of the program (name of the binary file).
 const std::string& program::name() {
     return program_name;
 }

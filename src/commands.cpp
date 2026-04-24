@@ -30,7 +30,11 @@ void commands::index(const std::filesystem::path& directory_path, const IndexOpt
     else if (options.output_type == Output::FILE) {
         // Create a unique filename for directory 'directory_path':
         std::filesystem::path output_path = makeUniqueFilePath(options.output_filename, directory_path);
-        std::cout << "Scanned " << library.size() << " files.\n";
+        if (library.empty()) {
+            std::cout << "No compatible files found.\n";
+            return;
+        }
+        std::cout << "Read " << library.size() << " compatible files.\n";
         std::cout << "File written to: " + output_path.string() << std::endl;
         std::ofstream outfile(output_path, std::ios::out);
         if (outfile.is_open()) {

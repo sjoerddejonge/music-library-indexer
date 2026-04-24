@@ -94,10 +94,12 @@ under MIT License.
 `[x]` Append ID3 frames to JSON.      
 `[x]` Iterate through all files in directory to extract tags.  
 `[x]` Iterate through all subfolders to extract all tags.   
-`[ ]` Accept input arguments (`mli index`, `mli index --verbose`).  
+`[x]` Accept input arguments (`mli index`, `mli index --verbose`).  
 `[x]` Write the JSON to a file.  
+`[ ]` Fix bugs and testing.
 
 ### Wishlist
+`[ ]` Improve argument parsing  
 `[x]` Decouple the ID3 parsing logic from the AIFF reader.  
 `[ ]` Fix code TODOs  
 `[ ]` Add support for ALL ID3 frames.  

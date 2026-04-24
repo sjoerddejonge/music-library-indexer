@@ -8,6 +8,9 @@
 
 #include "options.h"
 
+/*
+ *      All commands supported by the program.
+ */
 
 namespace commands {
     void index(const std::filesystem::path& directory_path, const IndexOptions& options);
