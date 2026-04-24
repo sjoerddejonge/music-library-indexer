@@ -34,7 +34,16 @@ struct ID3Header {
                                                 // b Extended header
                                                 // c Experimental indicator
                                                 // d Footer present
-    std::array<uint8_t, 4> size;            // 32 bits Synchsafe integer (4 * %0xxxxxxx)
+    std::array<uint8_t, 4> size;            // 32 bits (for v2.4.0 Synchsafe) integer (4 * %0xxxxxxx)
+
+    // Get the size of the ID3 header as int32_t. Converts from big endian to native endian.
+    [[nodiscard]] uint32_t getSize() const {
+        if (version[0] >= 4) {
+            return fromSynchsafe32(size);
+        }
+        // Return array of four uint8_t as one uint32_t
+        return fromBigEndianInt(fromArrayToInt32(size));
+    }
 };
 #pragma pack(pop)
 
@@ -42,16 +51,17 @@ struct ID3Header {
 // The header of the ID3 Frame.
 struct ID3FrameHeader {
     std::array<char, 4> frame_id;           // 32 bits, four characters
-    std::array<uint8_t, 4> size;            // 32 bits Synchsafe integer (4 * %0xxxxxxx)
+    std::array<uint8_t, 4> size;            // 32 bits (for v2.4.0 Synchsafe) integer (4 * %0xxxxxxx)
     std::array<uint8_t, 2> flags;           // 16 bits, two flag bytes
 
     [[nodiscard]] std::string frameIdToStr() const {
         return charsToStr(frame_id);
     }
 
-    // Get the size of the ID3 frame header as int32_t.
-    [[nodiscard]] uint32_t getSize() const {
-        return fromSynchsafe32(size);
+    // Get the size of the ID3 frame header as int32_t. Converts from big endian to native endian.
+    [[nodiscard]] uint32_t getSize(const bool synchsafe) const {
+        if (synchsafe) return fromSynchsafe32(size);
+        return fromBigEndianInt(fromArrayToInt32(size));
     }
 };
 #pragma pack(pop)
@@ -178,7 +188,7 @@ std::tuple<std::string, Iterator, std::optional<bool>> readFieldToUtf8(Iterator 
 };
 
 ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options);
-void extractId3Frames(std::ifstream& fin, uint32_t id3_size, nlohmann::json& song, const IndexOptions& options);
+void extractId3Frames(std::ifstream& fin, ID3Header id3_header, nlohmann::json& song, const IndexOptions& options);
 std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uint8_t>& data, const IndexOptions& options);
 nlohmann::json id3ToJson(std::ifstream& fin, const IndexOptions& options);
 

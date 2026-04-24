@@ -22,7 +22,7 @@ nlohmann::json id3ToJson(std::ifstream& fin, const IndexOptions& options) {
     // Extract ID3 header.
     const ID3Header id3_header = parseId3Header(fin, options);
     // Extract ID3 frames and add to JSON.
-    extractId3Frames(fin, fromSynchsafe32(id3_header.size), song, options);
+    extractId3Frames(fin, id3_header, song, options);
     return song;
 }
 
@@ -32,43 +32,48 @@ nlohmann::json id3ToJson(std::ifstream& fin, const IndexOptions& options) {
 // - fin:       Reference to the ifstream at the start of the ID3 tag.
 // - verbose:   Optional bool to enable console output, default = false.
 ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
-    ID3Header id3_tag_header{};
-    fin.read(reinterpret_cast<char*>(&id3_tag_header), sizeof(id3_tag_header));
+    ID3Header id3_header{};
+    fin.read(reinterpret_cast<char*>(&id3_header), sizeof(id3_header));
     if (options.verbose) {
         std::cout << "=== ID3 Tag Header ===" << "\n";
-        std::cout << "file_identifier: " << charsToStr(id3_tag_header.file_identifier) << "\n";
-        std::cout << "version: " << static_cast<int>(id3_tag_header.version[0]) << "." << static_cast<int>(id3_tag_header.version[1]) << "\n";
+        std::cout << "file_identifier: " << charsToStr(id3_header.file_identifier) << "\n";
+        std::cout << "version: " << static_cast<int>(id3_header.version[0]) << "." << static_cast<int>(id3_header.version[1]) << "\n";
     }
-    const std::bitset<8> flags{id3_tag_header.flags};
+    const std::bitset<8> flags{id3_header.flags};
     if (options.verbose){
         std::cout << "flags: " << flags << "\n";
-        std::cout << "size: " << fromSynchsafe32(id3_tag_header.size) << "\n";
+        std::cout << "size: " << id3_header.getSize() << "\n";
     }
 
     // If file has an extended header, skip past it.                                bit: 76543210
     // If flag b is set, which is bit 6, it has an extended header. (considering flags = abcd0000)
-    if (id3_tag_header.flags & (1 << 6 )) {
+    if (id3_header.flags & (1 << 6 )) {
         std::array<uint8_t, 4> extended_header_size{};
         fin.read(reinterpret_cast<char*>(&extended_header_size), sizeof(extended_header_size));
         // Skip ahead extended_header_size bytes from current position:
-        fin.seekg(fromSynchsafe32(extended_header_size), std::ios_base::cur);
+        const uint32_t size_to_skip = (id3_header.version[0] >= 4)
+            ? fromSynchsafe32(extended_header_size)
+            : fromBigEndianInt(fromArrayToInt32(extended_header_size));
+        fin.seekg(size_to_skip, std::ios_base::cur);
     }
 
-    return id3_tag_header;
+    return id3_header;
 }
 
 // Accepts an ifstream at past the ID3 header, scans ID3 frames and writes them to JSON.
 //
 // Arguments:
-// - fin:       Reference to the ifstream at the start of the first ID3 frame.
-// - id3_size:  The size of the ID3 tag, including the header.
-// - song:      The JSON to store the song's ID3 data in.
-// - verbose:   Optional bool to enable console output, default = false.
-void extractId3Frames(std::ifstream& fin, const uint32_t id3_size, nlohmann::json& song, const IndexOptions& options) {
+// - fin:           Reference to the ifstream at the start of the first ID3 frame.
+// - id3_header:    Header of the ID3 tag, containing the size and version.
+// - song:          The JSON to store the song's ID3 data in.
+// - verbose:       Optional bool to enable console output, default = false.
+void extractId3Frames(std::ifstream& fin, const ID3Header id3_header, nlohmann::json& song, const IndexOptions& options) {
+    const uint32_t id3_size = id3_header.getSize();
     const int curr = fin.tellg(); // Current pos on the ifstream, just past the ID3 header
 
     // For every frame:
     while (fin.good() && fin.tellg() < curr + id3_size) {
+        const bool synchsafe = id3_header.version[0] >= 4;
         // Create the frame header
         ID3FrameHeader id3_frame_header{};
         fin.read(reinterpret_cast<char*>(&id3_frame_header), sizeof(id3_frame_header));
@@ -78,14 +83,17 @@ void extractId3Frames(std::ifstream& fin, const uint32_t id3_size, nlohmann::jso
         if (id3_frame_header.frame_id[0] == '\0') break;
 
         if (options.verbose) {
+            const std::bitset<8> flag1{id3_frame_header.flags[0]};
+            const std::bitset<8> flag2{id3_frame_header.flags[1]};
             std::cout << "frame: " << charsToStr(id3_frame_header.frame_id);
-            std::cout << ", size: " << fromSynchsafe32(id3_frame_header.size) << "\n";
+            std::cout << ", size: " << id3_frame_header.getSize(synchsafe);
+            std::cout << ", flags: " << flag1 << " " << flag2 << "\n";
         }
 
         // Read the frame data:
-        const uint32_t size = fromSynchsafe32(id3_frame_header.size);
+        const uint32_t size = id3_frame_header.getSize(synchsafe);
         std::vector<uint8_t> frame_data(size);
-        fin.read(reinterpret_cast<char*>(frame_data.data()), fromSynchsafe32(id3_frame_header.size));
+        fin.read(reinterpret_cast<char*>(frame_data.data()), id3_frame_header.getSize(synchsafe));
 
         if (const auto frame = makeFrame(id3_frame_header, frame_data, options)) {
             frame->toJson(song);

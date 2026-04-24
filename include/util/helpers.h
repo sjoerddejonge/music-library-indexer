@@ -42,6 +42,13 @@ inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
     return result;
 }
 
+inline uint32_t fromArrayToInt32(const std::array<uint8_t, 4>& value) {
+    return static_cast<uint32_t>(value[0]) |
+            (static_cast<uint32_t>(value[1]) << 8) |
+            (static_cast<uint32_t>(value[2]) << 16) |
+            (static_cast<uint32_t>(value[3]) << 24);
+}
+
 // Convert float from big endian to native endianness.
 inline float fromBigEndianFloat(const float value) {
     if constexpr (std::endian::native == std::endian::big) {

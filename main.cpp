@@ -26,7 +26,6 @@
 #include "options.h"
 #include "program_info.h"
 
-// TODO: Fix errors in frame header parsing that print non-existing frame ids when running --verbose
 // TODO: Fix to-dos in UTF-16 converter for edge cases
 // TODO: Rewrite README
 // TODO: Tests:
