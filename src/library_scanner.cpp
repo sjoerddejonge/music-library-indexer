@@ -61,6 +61,9 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
                 }
                 try {
                     locateId3(fin); // Skip ifstream to the start of the ID3 tag.
+                    if (options.verbose) {
+                        std::cout << "~ Filename: " << dir_entry.path() << "\n";
+                    }
                     const nlohmann::json song = id3ToJson(fin, options);
                     if (!song.is_null()) library["songs"].push_back(song);
                 }

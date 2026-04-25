@@ -34,15 +34,12 @@ nlohmann::json id3ToJson(std::ifstream& fin, const IndexOptions& options) {
 ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
     ID3Header id3_header{};
     fin.read(reinterpret_cast<char*>(&id3_header), sizeof(id3_header));
-    if (options.verbose) {
-        std::cout << "=== ID3 Tag Header ===" << "\n";
-        std::cout << "file_identifier: " << charsToStr(id3_header.file_identifier) << "\n";
-        std::cout << "version: " << static_cast<int>(id3_header.version[0]) << "." << static_cast<int>(id3_header.version[1]) << "\n";
-    }
     const std::bitset<8> flags{id3_header.flags};
-    if (options.verbose){
-        std::cout << "flags: " << flags << "\n";
-        std::cout << "size: " << id3_header.getSize() << "\n";
+    if (options.verbose) {
+        std::cout << charsToStr(id3_header.file_identifier);
+        std::cout << "v2." << static_cast<int>(id3_header.version[0]) << "." << static_cast<int>(id3_header.version[1]);
+        std::cout << "  -  flags: " << flags;
+        std::cout << "  -  size: " << id3_header.getSize() << "\n";
     }
 
     // If file has an extended header, skip past it.                                bit: 76543210
@@ -86,8 +83,8 @@ void extractId3Frames(std::ifstream& fin, const ID3Header id3_header, nlohmann::
             const std::bitset<8> flag1{id3_frame_header.flags[0]};
             const std::bitset<8> flag2{id3_frame_header.flags[1]};
             std::cout << "frame: " << charsToStr(id3_frame_header.frame_id);
-            std::cout << ", size: " << id3_frame_header.getSize(synchsafe);
-            std::cout << ", flags: " << flag1 << " " << flag2 << "\n";
+            std::cout << "\tsize: " << id3_frame_header.getSize(synchsafe);
+            std::cout << " \tflags: " << flag1 << " " << flag2 << "\n";
         }
 
         // Read the frame data:

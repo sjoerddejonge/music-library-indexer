@@ -118,8 +118,7 @@ To do so in CLion, go to `Run > Edit
 Configurations...` and add `index` to the 'Program Arguments' field.
 
 ### Output
-The output will be a `JSON` array, grouping the tags of one song. The
-ID3 frame id will be used as key. Here is an example of the output:
+The output will be a `JSON`. Here is an example of the output:
 ```json
 {
   "meta": {
@@ -156,6 +155,8 @@ ID3 frame id will be used as key. Here is an example of the output:
   ]
 }
 ```
+The time under `"exported_at"` is always in UTC. The value for `"tool"`
+is always `"mli"`, even if the user has renamed their binary.
 
 ## 4. Features
 This app supports reading both `id3v2.3.0` and `id3v2.4.0` tags. It 

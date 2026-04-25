@@ -25,7 +25,7 @@
 #include "options.hpp"
 #include "program_info.hpp"
 
-// TODO: Include current filename for --verbose
+// TODO: Add check for permission to access directory in library_scanner
 // TODO: Test UTF-16 edge cases?
 // TODO: Tests:
 //      TODO: Add UTF-16 surrogate characters to tags of example songs in /music
