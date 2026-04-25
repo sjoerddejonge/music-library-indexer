@@ -165,38 +165,83 @@ Other frames
 * `UTF-16BE`
 
 ## 5. Project structure
-```text
-main.cpp
+* `main.cpp`  
+* `src/`
+  * `commands.cpp` All CLI commands (index, help).
+  * `program_info.cpp` Stores the runtime program name.   
+  * `library_scanner.cpp` Scan through directory, used by `mli index`.
+  * `aiff_reader.cpp` Read .aiff files.
+  * `id3_parser.cpp` Parse ID3 tag. 
+* `include/`
+  * `util/`
+    * `helpers.hpp` Header-only helper functions.
+    * `base64.hpp` Header-only Base64 encoder and decoder.
+  * `nlohmann/`
+    * `json.hpp` Header-only json library by github.com/nlohmann
+  * `options.hpp` Header-only command options.
 
-src/commands.cpp
-    All available CLI commands (index, help)
-
-src/program_info.cpp
-    Stores the runtime program name
-
-src/library_scanner.cpp
-    Scan through a directory looking for supported filetypes
-
-src/aiff_reader.cpp
-    Read .aiff file, scan chunks to find ID3 chunk, pass it to the 
-    id3_parser
-
-src/id3_parser.cpp
-    Parsing of the ID3 tag
-
-include/util/helpers.hpp
-    Header-only helper functions.
-
-include/util/base64.hpp
-    Header-only Base64 encoder and decoder. Stand-alone, free to use 
-    in your projects.
-
-include/options.hpp
-    Header-only file that contains definitions of command options.
-
-include/nlohmann/json.hpp
-    Header-only json library by github.com/nlohmann under MIT License.
+### Adding new file format readers
+Support for new music file formats can be added as a separate 
+implementation file, for example: `flac_reader.cpp`. It should 
+have a function that accepts an `std::ifstream&` and reads up until
+the start of ID3 header:
+```c++
+void locateId3(std::ifstream& fin);
 ```
+
+This function can then be called in the function `libraryToJson()`
+in `library_scanner.cpp`:
+```c++
+// Lambda function for scanning the directories (recursive or not):
+auto scan = [&](const auto& iterator) {
+    for (auto const& dir_entry : iterator) {
+        if (dir_entry.is_directory() && options.subdirectories) {
+            std::cout << "Reading files in: " << dir_entry.path() << "\n";
+        }
+
+        /*
+         * Add newly supported file formats here:
+         */
+
+        // AIFF files
+        if (dir_entry.path().extension() == ".aiff" || dir_entry.path().extension() == ".aif") {
+            std::ifstream fin{ dir_entry.path(), std::ios_base::binary }; // Create an if-stream to open the file.
+            if (!fin) {
+                std::cerr << "Failed to open: " << dir_entry.path() << "\n";
+                continue;
+            }
+            try {
+                locateId3(fin); // Skip ifstream to the start of the ID3 tag.
+                const nlohmann::json song = id3ToJson(fin, options);
+                if (!song.is_null()) library.push_back(song);
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Error occurred: " << e.what() << "\n";
+            }
+            fin.close();
+        }
+    }
+};
+```
+
+### Adding new commands
+Each command (such as `mli index` or `mli help`) is added as a function 
+in `src/commands.cpp` under the `commands` namespace. New commands should 
+follow this structure.
+
+### Console output
+When printing text to the user in the terminal, all references to the 
+name of the app should use `program::name()`
+(`#include program_info.hpp`) instead of hard-coding the name:
+```c++
+std::cout << std::format("This is program is called {}.", program::name());
+```
+```terminaloutput
+This program is called mli.
+```
+This allows the user to rename the binary in case of conflict with other
+binaries using `mli <command>` to call the program, while keeping all
+functionality like help text.
 
 ## 6. Milestones
 ### For version 1.0.0 (MVP)

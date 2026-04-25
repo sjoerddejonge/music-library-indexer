@@ -11,7 +11,6 @@
 #include <fstream>
 #include <ios>
 #include <iostream>
-#include <map>
 
 // Reads the ifstream of an AIFF to the point start of the ID3 tag.
 //

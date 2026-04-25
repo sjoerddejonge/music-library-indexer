@@ -37,6 +37,11 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
             if (dir_entry.is_directory() && options.subdirectories) {
                 std::cout << "Reading files in: " << dir_entry.path() << "\n";
             }
+
+            /*
+             * Add newly supported file formats here:
+             */
+
             // AIFF files
             if (dir_entry.path().extension() == ".aiff" || dir_entry.path().extension() == ".aif") {
                 std::ifstream fin{ dir_entry.path(), std::ios_base::binary }; // Create an if-stream to open the file.
