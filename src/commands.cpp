@@ -50,7 +50,7 @@ void commands::index(const std::filesystem::path& directory_path, const IndexOpt
 // Print help text for instructions on how to use this program.
 void commands::help() {
                 //  ================================================================================
-    std::cout   << "Music Library Indexer\n"
+    std::cout   << "Music Library Indexer" << std::format("                     version: {}\n", program::version())
                 << "\n"
                 << std::format("  usage: {} <command> [<args>]\n", program::name())
                 << "\n"

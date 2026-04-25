@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 4.2)
-project(mli) # Accessible through ${PROJECT_NAME}
+project(mli
+        VERSION 1.0.0
+)
+# Project name is accessible through ${PROJECT_NAME}
+# Project version through ${PROJECT_VERSION} throughout this file
 
 set(CMAKE_CXX_STANDARD 23)
 
@@ -23,6 +27,7 @@ add_executable(${PROJECT_NAME} main.cpp
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     PROJECT_ROOT="${CMAKE_SOURCE_DIR}"
+    PROJECT_VERSION="${PROJECT_VERSION}"
     $<$<CONFIG:Debug>:DEBUG>
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include)

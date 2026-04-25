@@ -13,6 +13,7 @@
 namespace program {
     void init(int argc, char *argv[]);
     const std::string& name();
+    const std::string& version();
 }
 
 #endif //MLI_PROGRAM_INFO_H

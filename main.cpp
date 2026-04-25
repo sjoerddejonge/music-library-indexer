@@ -27,6 +27,7 @@
 #include "program_info.hpp"
 
 // TODO: Add versioning and implement in program_info
+// TODO: Add MLI metadata to JSON
 // TODO: Fix to-dos in UTF-16 converter for edge cases
 // TODO: Tests:
 //      TODO: Add UTF-16 surrogate characters to tags of example songs in /music
@@ -34,7 +35,7 @@
 
 // argc is always at least 1
 int main(const int argc, char *argv[]) {
-    program::init(argc, argv);
+    program::init(argc, argv);  // Initialize program info
 
     #ifdef DEBUG
         /* DEVELOP */
