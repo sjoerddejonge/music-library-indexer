@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 4.2)
+
+# IMPORTANT: Changing PROJECT_NAME (mli) requires a major PROJECT_VERSION update!!!
 project(mli
         VERSION 1.0.0
 )
@@ -28,6 +30,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     PROJECT_ROOT="${CMAKE_SOURCE_DIR}"
     PROJECT_VERSION="${PROJECT_VERSION}"
+    PROJECT_NAME="${PROJECT_NAME}"
     $<$<CONFIG:Debug>:DEBUG>
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include)

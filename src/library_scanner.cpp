@@ -11,6 +11,7 @@
 #include "nlohmann/json.hpp"
 #include "aiff_reader.hpp"
 #include "id3_parser.hpp"
+#include "program_info.hpp"
 
 // Scans all supported music files in the directory (and optionally subdirectories) and writes their ID3 tag data to a JSON.
 //
@@ -25,8 +26,17 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
         throw std::runtime_error("Directory does not exist.");
     }
 
-    // Initialize JSON as array
-    nlohmann::json library = nlohmann::json::array();
+    // Get current date-time stamp down to seconds
+    std::chrono::sys_time<std::chrono::seconds> now = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
+
+    // Initialize JSON
+    nlohmann::json library;
+    library["meta"]["directory"] = directory_path.string();
+    library["meta"]["exported_at"] = std::format("{:%Y-%m-%dT%H:%M:%SZ}",now);
+    // The tool name is hard-coded as "mli". Here it should NOT use the runtime name ('program::name()').
+    library["meta"]["tool"] = PROJECT_NAME;
+    library["meta"]["version"] = program::version();
+    library["songs"] = nlohmann::json::array(); // Initialize library["songs"] as array
 
     std::cout << "Reading files in: \"" << directory_path << "\"\n";
 
@@ -52,7 +62,7 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
                 try {
                     locateId3(fin); // Skip ifstream to the start of the ID3 tag.
                     const nlohmann::json song = id3ToJson(fin, options);
-                    if (!song.is_null()) library.push_back(song);
+                    if (!song.is_null()) library["songs"].push_back(song);
                 }
                 catch (const std::exception& e) {
                     std::cerr << "Error occurred: " << e.what() << "\n";
@@ -69,6 +79,8 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
         const std::filesystem::directory_iterator iterator{directory_path};
         scan(iterator);
     }
+
+    library["meta"]["file_count"] = library["songs"].size();
 
     return library;
 }

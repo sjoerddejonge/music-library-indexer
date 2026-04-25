@@ -22,6 +22,7 @@ const std::string& program::name() {
     return program_name;
 }
 
+// The version of the program/this project.
 const std::string& program::version() {
     return program_version;
 }
