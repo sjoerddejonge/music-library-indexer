@@ -34,13 +34,13 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
     library["meta"]["directory"] = directory_path.string();
     library["meta"]["exported_at"] = std::format("{:%Y-%m-%dT%H:%M:%SZ}",now);
     // The tool name is hard-coded as "mli". Here it should NOT use the runtime name ('program::name()').
-    library["meta"]["tool"] = PROJECT_NAME;
+    library["meta"]["tool"] = PROJECT_NAME; // Leave this 'hard-coded' to project_name!
     library["meta"]["version"] = program::version();
     library["songs"] = nlohmann::json::array(); // Initialize library["songs"] as array
 
-    std::cout << "Reading files in: \"" << directory_path << "\"\n";
+    std::cout << "Reading files in: " << directory_path << "\n";
 
-    // TODO: Add check for permission to access directory
+    // TODO: Add console output for directories that are skipped due to missing permissions
     // Lambda function for scanning the directories (recursive or not):
     auto scan = [&](const auto& iterator) {
         for (auto const& dir_entry : iterator) {
@@ -76,7 +76,7 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
     };
 
     if (options.subdirectories) { // Recursive scanning
-        const std::filesystem::recursive_directory_iterator iterator{directory_path};
+        const std::filesystem::recursive_directory_iterator iterator{directory_path, std::filesystem::directory_options::skip_permission_denied};
         scan(iterator);
     } else { // Non-recursive scanning
         const std::filesystem::directory_iterator iterator{directory_path};

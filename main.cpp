@@ -25,11 +25,11 @@
 #include "options.hpp"
 #include "program_info.hpp"
 
-// TODO: Add check for permission to access directory in library_scanner
-// TODO: Test UTF-16 edge cases?
 // TODO: Tests:
 //      TODO: Add UTF-16 surrogate characters to tags of example songs in /music
+//      TODO: Test UTF-16 surrogate edge cases
 //      TODO: Add corrupted tags to example songs in /music for testing
+// TODO: Add console output for directories that are skipped due to missing permissions
 
 // argc is always at least 1
 int main(const int argc, char *argv[]) {

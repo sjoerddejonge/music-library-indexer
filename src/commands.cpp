@@ -20,6 +20,7 @@
 // directory_path       Path to the directory to scan.
 // options              IndexOptions to configure options for this command, see include/options.hpp
 void commands::index(const std::filesystem::path& directory_path, const IndexOptions& options) {
+    if (options.subdirectories) std::cout << "Directories without permission to read are skipped silently.\n";
     // Directory scanning:
     const nlohmann::json library = libraryToJson(directory_path, options);
 
