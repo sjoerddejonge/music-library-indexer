@@ -2,23 +2,23 @@
 // Created by Sjoerd de Jonge on 24/04/2026.
 //
 
-#include "../include/commands.h"
+#include "../include/commands.hpp"
 
 #include <iostream>
 #include <filesystem>
 #include <fstream>
 
-#include "library_scanner.h"
+#include "library_scanner.hpp"
 #include "nlohmann/json.hpp"
-#include "util/helpers.h"
-#include "program_info.h"
+#include "util/helpers.hpp"
+#include "program_info.hpp"
 
 // Scan the directory for compatible files, extract ID3 tags for each file, then append to JSON.
 // The JSON is either printed to console, written as file, or discarded.
 //
 // Arguments:
 // directory_path       Path to the directory to scan.
-// options              IndexOptions to configure options for this command, see include/options.h
+// options              IndexOptions to configure options for this command, see include/options.hpp
 void commands::index(const std::filesystem::path& directory_path, const IndexOptions& options) {
     // Directory scanning:
     const nlohmann::json library = libraryToJson(directory_path, options);

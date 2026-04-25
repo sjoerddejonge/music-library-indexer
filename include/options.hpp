@@ -8,7 +8,7 @@
 #include <format>
 #include <chrono>
 
-#include "program_info.h"
+#include "program_info.hpp"
 
 enum class Output {
     CONSOLE,

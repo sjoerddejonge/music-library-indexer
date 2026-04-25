@@ -10,9 +10,9 @@
 #include <vector>
 #include <map>
 #include <variant>
-#include "options.h"
-#include "util/base64.h"
-#include "util/helpers.h"
+#include "options.hpp"
+#include "util/base64.hpp"
+#include "util/helpers.hpp"
 #include "nlohmann/json.hpp"
 
 

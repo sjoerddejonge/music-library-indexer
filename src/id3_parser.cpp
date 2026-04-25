@@ -5,10 +5,10 @@
 #include <bitset>
 #include <fstream>
 #include <iostream>
-#include "id3_parser.h"
-#include "options.h"
-#include "util/base64.h"
-#include "util/helpers.h"
+#include "id3_parser.hpp"
+#include "options.hpp"
+#include "util/base64.hpp"
+#include "util/helpers.hpp"
 #include "../include/nlohmann/json.hpp"
 
 
@@ -16,7 +16,7 @@
 //
 // Arguments:
 // - fin:       Reference to the ifstream at the start of the ID3 tag.
-// - options:   A struct with options for running the command. For default see include/options.h
+// - options:   A struct with options for running the command. For default see include/options.hpp
 nlohmann::json id3ToJson(std::ifstream& fin, const IndexOptions& options) {
     nlohmann::json song;
     // Extract ID3 header.

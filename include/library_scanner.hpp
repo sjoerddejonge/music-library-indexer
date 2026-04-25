@@ -6,7 +6,7 @@
 #define MLI_LIBRARY_SCANNER_H
 #include <string>
 
-#include "options.h"
+#include "options.hpp"
 #include "nlohmann/json.hpp"
 
 nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const IndexOptions& options);

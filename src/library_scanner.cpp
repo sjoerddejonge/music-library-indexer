@@ -7,16 +7,16 @@
 #include <iostream>
 #include <fstream>
 
-#include "library_scanner.h"
+#include "library_scanner.hpp"
 #include "nlohmann/json.hpp"
-#include "aiff_reader.h"
-#include "id3_parser.h"
+#include "aiff_reader.hpp"
+#include "id3_parser.hpp"
 
 // Scans all supported music files in the directory (and optionally subdirectories) and writes their ID3 tag data to a JSON.
 //
 // Arguments:
 // - directory_path: The path to the directory to scan for music files.
-// - options: A struct with options for running the command. For default see include/options.h
+// - options: A struct with options for running the command. For default see include/options.hpp
 nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const IndexOptions& options) {
     // Verify directory_path after adding user input of directory_path.
     // This is a redundant safety check.

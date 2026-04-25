@@ -2,7 +2,7 @@
 // Created by Sjoerd de Jonge on 24/04/2026.
 //
 
-#include "program_info.h"
+#include "program_info.hpp"
 
 #include <filesystem>
 

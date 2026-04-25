@@ -2,12 +2,12 @@
 // Created by Sjoerd de Jonge on 02/04/2026.
 //
 
-#include "aiff_reader.h"
+#include "aiff_reader.hpp"
 
 #include <format>
 
-#include "id3_parser.h"
-#include "util/helpers.h"
+#include "id3_parser.hpp"
+#include "util/helpers.hpp"
 #include <fstream>
 #include <ios>
 #include <iostream>

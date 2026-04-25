@@ -6,7 +6,7 @@
 #define MLI_COMMANDS_H
 #include <filesystem>
 
-#include "options.h"
+#include "options.hpp"
 
 /*
  *      All commands supported by the program.

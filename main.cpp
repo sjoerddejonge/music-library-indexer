@@ -19,15 +19,14 @@
 #include <filesystem>
 #include <fstream>
 #include <format>
-#include "aiff_reader.h"
-#include "commands.h"
-#include "id3_parser.h"
+#include "aiff_reader.hpp"
+#include "commands.hpp"
+#include "id3_parser.hpp"
 #include "nlohmann/json.hpp"
-#include "options.h"
-#include "program_info.h"
+#include "options.hpp"
+#include "program_info.hpp"
 
 // TODO: Fix to-dos in UTF-16 converter for edge cases
-// TODO: Rewrite README
 // TODO: Tests:
 //      TODO: Add UTF-16 surrogate characters to tags of example songs in /music
 //      TODO: Add corrupted tags to example songs in /music for testing
