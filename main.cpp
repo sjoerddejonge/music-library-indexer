@@ -26,6 +26,7 @@
 #include "options.hpp"
 #include "program_info.hpp"
 
+// TODO: Add versioning and implement in program_info
 // TODO: Fix to-dos in UTF-16 converter for edge cases
 // TODO: Tests:
 //      TODO: Add UTF-16 surrogate characters to tags of example songs in /music

@@ -11,23 +11,42 @@ working directory, called a snapshot.
 Uses the [nlohmann/json](https://github.com/nlohmann/json) library.
 All other files are written by me.
 
-1. [Design goals](#1-design-goals)
-2. [Installation](#2-installation)
-3. [How to use](#3-how-to-use)
-4. [Features](#4-features)
-5. [Project structure](#5-project-structure)
-6. [Milestones](#6-milestones)
+<!-- TOC -->
+* [Music library indexer](#music-library-indexer)
+  * [1. Design goals](#1-design-goals)
+  * [2. Installation](#2-installation)
+    * [(a) Add to PATH](#a-add-to-path)
+    * [(b) Forking/cloning](#b-forkingcloning)
+    * [(c) Building the app](#c-building-the-app)
+  * [3. How to use](#3-how-to-use)
+    * [Running from PATH](#running-from-path)
+    * [Running from your IDE](#running-from-your-ide)
+    * [Output](#output)
+  * [4. Features](#4-features)
+    * [Supported music file formats](#supported-music-file-formats)
+    * [Supported output file formats](#supported-output-file-formats)
+    * [Supported ID3 frames](#supported-id3-frames)
+    * [Supported ID3 frame text encoding](#supported-id3-frame-text-encoding)
+  * [5. Project structure](#5-project-structure)
+    * [Adding new file format readers](#adding-new-file-format-readers)
+    * [Adding new commands](#adding-new-commands)
+    * [Console output](#console-output)
+  * [6. Milestones](#6-milestones)
+    * [For version 1.0.0 (MVP)](#for-version-100-mvp)
+    * [Wishlist](#wishlist)
+<!-- TOC -->
 
 ## 1. Design goals
 The first and foremost goal of this project is to improve my software
 engineering skills by learning modern C++ and best practices for
-software development. The second goal is to build a tool that is
-personally useful for managing a music library.
-Other goals are:
+software development. Therefore, this repository is also meant as a 
+personal portfolio piece!  
+The second goal is to build a tool that is personally useful for managing
+a music library. Other goals are:
 * **Intuitive CLI interface**. The Unix-style CLI interface should be
   clear to use for users of tools like `git`.
 * **Format-agnostic design**. Adding support for new file formats is as
-  simple as adding a `flac_reader.h` and `flac_reader.cpp`.
+  simple as adding a `flac_reader.hpp` and `flac_reader.cpp`.
 * **Safety**. Because this tool only **reads** your files, it poses
   no risk for your library. Writing ID3 tags is (currently) not included
   in the scope as writing ID3 tags is not trivial and poses a risk for
@@ -181,10 +200,10 @@ Other frames
   * `options.hpp` Header-only command options.
 
 ### Adding new file format readers
-Support for new music file formats can be added as a separate 
-implementation file, for example: `flac_reader.cpp`. It should 
-have a function that accepts an `std::ifstream&` and reads up until
-the start of ID3 header:
+Adding support for new music file formats is as easy as creating a 
+separate implementation file, for example: `flac_reader.cpp`. It 
+should have a function that accepts an `std::ifstream&` and reads 
+up until the start of ID3 header:
 ```c++
 void locateId3(std::ifstream& fin);
 ```
@@ -231,16 +250,16 @@ follow this structure.
 
 ### Console output
 When printing text to the user in the terminal, all references to the 
-name of the app should use `program::name()`
-(`#include program_info.hpp`) instead of hard-coding the name:
+name of the app use `program::name()` (`#include program_info.hpp`) 
+instead of hard-coding the name:
 ```c++
-std::cout << std::format("This is program is called {}.", program::name());
+std::cout << std::format("This is program is called {}.\n", program::name());
 ```
 ```terminaloutput
 This program is called mli.
 ```
 This allows the user to rename the binary in case of conflict with other
-binaries using `mli <command>` to call the program, while keeping all
+binaries using `mli <command>` to call their program, while keeping all
 functionality like help text.
 
 ## 6. Milestones
@@ -259,9 +278,9 @@ functionality like help text.
 * `[ ]` Fix bugs and testing
 
 ### Wishlist
-* `[ ]` Improve argument parsing
+* `[ ]` Improve argument parsing to be more Unix-like
 * `[ ]` Fix code TODOs
-* `[ ]` Add support for ALL ID3 frames
+* `[ ]` Add support for **ALL** ID3 frames
 * `[ ]` Support more music file formats:
   * `[ ]` Add support for `.flac` music files
   * `[ ]` Add support for `.mp3` music files
