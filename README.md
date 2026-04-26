@@ -11,7 +11,7 @@ working directory, called a snapshot.
 Uses the [nlohmann/json](https://github.com/nlohmann/json) library.
 All other files are written by me.
 
-![Example use of mli](docs/mli_terminal_example.gif)
+![Example use of mli](docs/mli_terminal_example.gif)  
 **[Scroll to example output JSON below ↓](#output)**
 
 <!-- TOC -->
@@ -40,10 +40,9 @@ All other files are written by me.
 <!-- TOC -->
 
 ## 1. Design goals
-The first and foremost goal of this project is to improve my software
-engineering skills by learning modern C++ and best practices for
-software development. Therefore, this repository is also meant as a 
-personal portfolio piece!  
+The first and foremost goal of this project is to be a **personal 
+portfolio piece**. I want to improve my software development skills 
+by learning modern C++ and best practices for software development.  
 The second goal is to build a tool that is personally useful for managing
 a music library. Other goals are:
 * **Intuitive CLI interface**. The Unix-style CLI interface should be

@@ -65,7 +65,7 @@ ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
 // - fin:           Reference to the ifstream at the start of the first ID3 frame.
 // - id3_header:    Header of the ID3 tag, containing the size and version.
 // - song:          The JSON to store the song's ID3 data in.
-// - verbose:       Optional bool to enable console output, default = false.
+// - options:       Contains bool verbose to enable console output, default = false.
 void extractId3Frames(std::ifstream& fin, const ID3Header id3_header, nlohmann::json& song, const IndexOptions& options) {
     const uint32_t id3_size = id3_header.getSize();
     const int curr = fin.tellg(); // Current pos on the ifstream, just past the ID3 header
@@ -198,7 +198,7 @@ COMM::COMM(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_
     if (frame_data.empty()) throw std::runtime_error("COMM: empty frame");
     this->header = frame_header;
     encoding = frame_data[0];
-    language = {frame_data[1], frame_data[2], frame_data[3]};
+    language = {static_cast<char>(frame_data[1]), static_cast<char>(frame_data[2]), static_cast<char>(frame_data[3])};
     auto [desc, val] = parseCOMMFrame(frame_data, encoding);
     description = std::move(desc);
     value = std::move(val);
@@ -206,9 +206,12 @@ COMM::COMM(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_
 
 // Returns nlohmann::json for the frame under "frame_id"
 nlohmann::json COMM::toJson() const {
-    // TODO: Add language field to JSON
     nlohmann::json frame;
-    if (!description.empty() || !value.empty()) frame["COMM"][description] = value;
+    if (!description.empty() || !value.empty()) {
+        frame["COMM"]["language"] = charsToStr(language);
+        frame["COMM"]["description"] = description;
+        frame["COMM"]["comment"] = value;
+    }
     return frame;
 }
 
@@ -249,10 +252,10 @@ APIC::APIC(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_
 nlohmann::json APIC::toJson() const {
     nlohmann::json frame;
     if (!data.empty()) {
-        frame["APIC"]["MIME type"] = mime_type;
-        frame["APIC"]["Picture type"] = picture_type;
-        frame["APIC"]["Description"] = description;
-        frame["APIC"]["Data"] = base64Encode(data);
+        frame["APIC"]["mime_type"] = mime_type;
+        frame["APIC"]["picture_type"] = picture_type;
+        frame["APIC"]["description"] = description;
+        frame["APIC"]["picture_data"] = base64Encode(data);
     }
     return frame;
 }

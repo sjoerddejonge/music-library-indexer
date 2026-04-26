@@ -9,7 +9,6 @@
 #include <cstdint>
 #include <vector>
 #include <map>
-#include <variant>
 #include "options.hpp"
 #include "util/base64.hpp"
 #include "util/helpers.hpp"
@@ -70,7 +69,7 @@ struct ID3FrameHeader {
 struct ID3Frame {
     ID3FrameHeader header{};
     virtual ~ID3Frame() = default;
-    virtual nlohmann::json toJson() const = 0;
+    [[nodiscard]] virtual nlohmann::json toJson() const = 0;
 };
 
 //
@@ -85,7 +84,7 @@ struct TextInformationFrame : public ID3Frame {
     // Constructs a TextInformationFrame, throws on error:
     explicit TextInformationFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data);
     // Append this frame to the JSON:
-    nlohmann::json toJson() const override;
+    [[nodiscard]] nlohmann::json toJson() const override;
 
 private:
     // (Private) Parse frame data into struct member variable(s).
@@ -97,10 +96,10 @@ struct TXXX : public ID3Frame {
     uint8_t encoding;           // Text encoding    $xx
     std::string description;    // Description      <text string according to encoding> $00 (00)
     std::string value;          // Value            <text string according to encoding>
-    // Constructs a TXXX, throws on error.
+
     explicit TXXX(ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data);
     // Append this frame to the JSON.
-    nlohmann::json toJson() const override;
+    [[nodiscard]] nlohmann::json toJson() const override;
 
 private:
     // (Private) Parse frame data into struct member variable(s).
@@ -110,13 +109,13 @@ private:
 // Comment frame.
 struct COMM : public ID3Frame {
     uint8_t encoding;                   // Text encoding          $xx
-    std::array<uint8_t, 3> language{};  // Language               $xx xx xx
+    std::array<char, 3> language{};  // Language               $xx xx xx
     std::string description;            // Short content descrip. <text string according to encoding> $00 (00)
     std::string value;                  // The actual text        <full text string according to encoding>
     // Constructs a COMM, throws on error:
     explicit COMM(ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data);
     // Append this frame to the JSON.
-    nlohmann::json toJson() const override;
+    [[nodiscard]] nlohmann::json toJson() const override;
 
 private:
     // (Private) Parse frame data into struct member variable(s).
@@ -133,7 +132,7 @@ struct APIC : public ID3Frame {
     // Constructs an APIC, throws on error.
     explicit APIC(ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data);
     // Append this frame to the JSON.
-    nlohmann::json toJson() const override;
+    [[nodiscard]] nlohmann::json toJson() const override;
 
 private:
     // (Private) Parse frame data into struct member variable(s).
