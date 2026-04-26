@@ -135,14 +135,16 @@ The output will be a `JSON`. Here is an example of the output:
     "exported_at": "2026-04-25T15:15:02Z",
     "file_count": 2,
     "tool": "mli",
-    "version": "1.0.0"
+    "version": "0.1.0"
   },
   "songs": [
     {
       "filename": "la-femme-dargent.aiff",
       "id3_frames": {
         "COMM": {
-          "": "This is a comment!"
+          "comment": "This is a comment",
+          "description": "",
+          "language": "eng"
         },
         "TALB": "Moon Safari",
         "TCON": "Electronic",
@@ -158,7 +160,9 @@ The output will be a `JSON`. Here is an example of the output:
       "filename": "la-femme-dargent (remix).aif",
       "id3_frames": {
         "COMM": {
-          "": "A remix of the previous track!"
+          "comment": "This is track is a remix",
+          "description": "",
+          "language": "eng"
         },
         "TALB": "Blue Moon Safari",
         "TCON": "Electronic",

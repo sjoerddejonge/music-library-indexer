@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.2)
 
 # IMPORTANT: Changing PROJECT_NAME (mli) requires a major PROJECT_VERSION update!!!
 project(mli
-        VERSION 1.0.1
+        VERSION 0.1.0
 )
 # Project name is accessible through ${PROJECT_NAME}
 # Project version through ${PROJECT_VERSION} throughout this file
