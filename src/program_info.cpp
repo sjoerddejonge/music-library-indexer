@@ -12,7 +12,7 @@ static std::string program_version; // <major>.<minor>.<patch>
 // Initialize the runtime program name.
 void program::init(const int argc, char *argv[]) {
     if (argc > 0 && argv[0]) {
-        program_name = std::filesystem::path(argv[0]).filename().string();
+        program_name = std::filesystem::path(argv[0]).stem().string();
     }
     program_version = PROJECT_VERSION;
 }
