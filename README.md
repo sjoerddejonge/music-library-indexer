@@ -12,7 +12,7 @@ Uses the [nlohmann/json](https://github.com/nlohmann/json) library.
 All other files are written by me.
 
 ![Example use of mli](docs/mli_terminal_example.gif)  
-**[Scroll to example output JSON below ↓](#output)**
+**[↓ Scroll to example output JSON below ↓](#output)**
 
 <!-- TOC -->
 * [Music library indexer](#music-library-indexer)
@@ -299,7 +299,7 @@ binaries using `mli <command>` to call their program, while keeping all
 functionality like help text.
 
 ## 6. Milestones
-### For version 1.0.0 (MVP)
+### For version 0.1.0 (MVP)
 * `[x]` Read `.aiff` file to locate ID3 tag
 * `[x]` Read ID3 header
 * `[x]` Scan and read ID3 frames
