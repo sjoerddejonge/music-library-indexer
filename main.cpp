@@ -20,7 +20,6 @@
 #include <format>
 #include "aiff_reader.hpp"
 #include "commands.hpp"
-#include "id3_parser.hpp"
 #include "nlohmann/json.hpp"
 #include "options.hpp"
 #include "program_info.hpp"

@@ -26,7 +26,8 @@ add_executable(${PROJECT_NAME} main.cpp
         src/program_info.cpp
 )
 
-if(WIN32)
+# Only for Windows release builds:
+if(WIN32 AND CONFIG:Release)
     target_link_options(${PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++ -static -lpthread)
 endif()
 

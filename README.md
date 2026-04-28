@@ -313,10 +313,11 @@ functionality like help text.
 * `[x]` Write the JSON to a file
 
 ### To-do
-* `[ ]` Testing
+* `[ ]` Testing UTF-16 tags
 * `[ ]` Improve argument parsing to be more Unix-like
 * `[ ]` Fix code TODOs
 * `[ ]` Add support for **ALL** ID3 frames
+* `[ ]` Add `.aiff` text chunks to JSON  
 * `[ ]` Support more music file formats:
   * `[ ]` Add support for `.flac` music files
   * `[ ]` Add support for `.mp3` music files
