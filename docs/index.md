@@ -3,6 +3,8 @@ layout: default
 title: Music Library Indexer docs
 ---
 
+[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)
+
 # Documentation
 
 Getting started with writing documentation!

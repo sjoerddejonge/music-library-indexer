@@ -9,7 +9,8 @@ The information is added to a `JSON` that is written to the current
 working directory, called a snapshot.
 
 Uses the [nlohmann/json](https://github.com/nlohmann/json) library.
-All other files are written by me.
+All other files are written by me.  
+Documentation can be found [here](https://sjoerddejonge.github.io/music-library-indexer/).
 
 ![Example use of mli](docs/mli_terminal_example.gif)  
 **[↓ Scroll to example output JSON below ↓](#output)**
