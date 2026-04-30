@@ -19,10 +19,6 @@ JSON keys should be in `snake_case`.
 Below you will find an example of a snapshot of a music library
 directory consisting of just two songs.
 
-<details>
-
-<summary>Example JSON</summary>
-
 ```json
 {
   "meta": {
@@ -73,8 +69,6 @@ directory consisting of just two songs.
   ]
 }
 ```
-
-</details>
 
 ### Meta
 The `"meta"` section contains the metadata of the snapshot.
