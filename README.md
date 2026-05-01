@@ -36,7 +36,7 @@ Documentation can be found [here](https://sjoerddejonge.github.io/music-library-
     * [Adding new commands](#adding-new-commands)
     * [Console output](#console-output)
   * [6. Milestones](#6-milestones)
-    * [For version 1.0.0 (MVP)](#for-version-100-mvp)
+    * [For version 0.1.0 (MVP)](#for-version-010-mvp)
     * [To-do](#to-do)
 <!-- TOC -->
 
