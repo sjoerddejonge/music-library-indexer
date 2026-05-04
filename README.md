@@ -130,6 +130,7 @@ Configurations...` and add `index` to the 'Program Arguments' field.
 
 ### Output
 The output will be a `JSON`. Here is an example of the output:
+
 ```json
 {
   "meta": {
@@ -141,6 +142,16 @@ The output will be a `JSON`. Here is an example of the output:
   },
   "songs": [
     {
+      "aiff_data": {
+        "annotation": "Annotations in AIFF files are another type of comment",
+        "name": "La Femme D'argent",
+        "comments": [
+          {
+            "marker_id": 0,
+            "text": "This is an AIFF comment"
+          }
+        ]
+      },
       "filename": "la-femme-dargent.aiff",
       "id3_frames": {
         "COMM": {

@@ -48,6 +48,16 @@ directory consisting of just two songs.
   },
   "songs": [
     {
+      "aiff_data": {
+        "annotation": "Annotations in AIFF files are another type of comment",
+        "name": "La Femme D'argent",
+        "comments": [
+          {
+            "marker_id": 0,
+            "text": "This is an AIFF comment"
+          }
+        ]
+      },
       "filename": "la-femme-dargent.aiff",
       "id3_frames": {
         "COMM": {
@@ -108,14 +118,26 @@ to make this snapshot.
 The `"songs"` section has `"meta" > "file_count"` amount of songs, with
 each song containing...
 
+* `"aiff_data` - Metadata extracted from the AIFF format. See 
+[section AIFF metadata](#aiff-metadata) below.
 * `"filename"` - The filename, with extension, without folders.
 * `"id3_frames"` - The contents of each ID3 frame that the app supports. 
-See [section ID3 Frames](#id3-frames) below.
+See [section ID3 frames](#id3-frames) below.
 * `"id3_version"` - The version of the ID3 tag.
 * `"relative_path"` - The path of the file, excluding the base path 
 defined under `"meta" > "directory"`.
 
-### ID3 Frames
+### AIFF metadata
+The following metadata can be extracted from the AIFF files, if present:
+* `"annotation"` - Text containing a comment.
+* `"author"` - Text containing one or more author names.
+* `"comments` - An array containing multiple comments, each with 
+its own keys `"marker_id"` and `"text"`.
+* `"copyright"` - Text containing a copyright notice for the sound.
+* `"name"` - Text containing the name of the song.
+
+
+### ID3 frames
 This section lists the supported ID3 frames. All frames start with 
 their ID3 frame ID, consisting of four letters.
 
