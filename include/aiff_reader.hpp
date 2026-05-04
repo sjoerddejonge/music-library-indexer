@@ -39,16 +39,35 @@ struct commonChunk {
 };
 #pragma pack(pop)
 
-struct aiffComment {
+// COMT chunk
+#pragma pack(push, 1)
+struct commentChunk {
+    
+};
+#pragma pack(pop)
+
+// A comment chunk
+#pragma pack(push, 1) // Probably unnecessary due to byte alignment
+struct aiffCommentHeader {
     uint32_t time_stamp;
+    uint16_t marker_id;
+    uint16_t count;
+};
+#pragma pack(pop)
+
+struct aiffComment {
+    std::uint16_t marker_id;
+    std::string text;
 };
 
+// Metadata to be extracted from the AIFF file
 struct aiffData {
-    std::vector<uint8_t> name;
-    std::vector<uint8_t> auth;
-    std::vector<uint8_t> copyright;
-    std::vector<uint8_t> anno;
-    std::optional<std::streampos> id3_pos;
+    std::vector<uint8_t> name;                  // Name chunk
+    std::vector<uint8_t> auth;                  // Author chunk
+    std::vector<uint8_t> copyright;             // Copyright chunk
+    std::vector<uint8_t> anno;                  // Annotation chunk
+    std::vector<aiffComment> comments;          // Comment chunk(s)
+    std::optional<std::streampos> id3_pos;      // Position of the ID3 chunk (start of data part)
 };
 
 aiffData scanFile(std::ifstream& fin, bool verbose = false);

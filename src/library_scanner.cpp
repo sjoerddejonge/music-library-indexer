@@ -78,6 +78,14 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
                         if (!aiff_data.auth.empty()) song["aiff_data"]["author"] = iso88591ToUtf8(aiff_data.auth.begin(), aiff_data.auth.end());
                         if (!aiff_data.copyright.empty()) song["aiff_data"]["copyright"] = iso88591ToUtf8(aiff_data.copyright.begin(), aiff_data.copyright.end());
                         if (!aiff_data.anno.empty()) song["aiff_data"]["annotation"] = iso88591ToUtf8(aiff_data.anno.begin(), aiff_data.anno.end());
+                        if (!aiff_data.comments.empty()) {
+                            for (auto const& comment : aiff_data.comments) {
+                                nlohmann::json json_comment;
+                                json_comment["text"] = comment.text;
+                                json_comment["marker_id"] = comment.marker_id;
+                                song["aiff_data"]["comments"].push_back(json_comment);
+                            }
+                        }
                         if (!song.is_null()) library["songs"].push_back(song);
                     }
                 }

@@ -79,6 +79,28 @@ aiffData scanFile(std::ifstream& fin, const bool verbose) {
                 continue;
             }
 
+            if (ckID == "COMT") {
+                // unsigned short numComments;
+                // Comment comments[];
+                uint16_t num_comments = 0;
+                fin.read(reinterpret_cast<std::istream::char_type *>(&num_comments), sizeof(num_comments));
+                num_comments = fromBigEndianInt(num_comments);
+                // Loop through each comment
+                for (uint16_t i = 0; i < num_comments; i++) {
+                    aiffCommentHeader comment_header{};
+                    fin.read(reinterpret_cast<std::istream::char_type *>(&comment_header), sizeof(comment_header));
+                    std::vector<uint8_t> text(fromBigEndianInt(comment_header.count));
+                    fin.read(reinterpret_cast<std::istream::char_type *>(text.data()), fromBigEndianInt(comment_header.count));
+                    aiffComment comment{
+                        .marker_id = fromBigEndianInt(comment_header.marker_id),
+                        .text = std::string(text.begin(), text.end()),
+                    };
+                    output.comments.push_back(comment);
+                    if (comment_header.count % 2 != 0) fin.seekg(1, std::ios_base::cur);
+                }
+                continue;
+            }
+
             // Determine how far we skip ahead, which is equal to the size of data in the chunk.
             // If the ckSize is odd, there is a padding byte at the end not counted in ckSize.
             const int32_t skip = (chunk_header.ck_size % 2 == 0) ? chunk_header.ck_size : chunk_header.ck_size + 1;
