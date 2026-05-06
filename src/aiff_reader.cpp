@@ -18,8 +18,8 @@
 // fin: The ifstream of an .aiff file.
 // verbose: (Optional) bool to toggle console output.
 aiffData scanFile(std::ifstream& fin, const bool verbose) {
-    aiffData output;
-    output.id3_pos = std::nullopt;
+    aiffData aiff_data;
+    aiff_data.id3_pos = std::nullopt;
     if (fin) {
         formChunk form_chunk{};
         fin.read(reinterpret_cast<char*>(&form_chunk), sizeof(form_chunk));
@@ -48,33 +48,33 @@ aiffData scanFile(std::ifstream& fin, const bool verbose) {
 
             if (ckID == "ID3 ") {
                 if (verbose) std::cout << "Found ID3 tag." << "\n";
-                output.id3_pos = fin.tellg();
+                aiff_data.id3_pos = fin.tellg();
             }
 
             if (ckID == "NAME") {
-                output.name.resize(chunk_header.ck_size); // Resize container
-                fin.read(reinterpret_cast<std::istream::char_type *>(output.name.data()), chunk_header.ck_size);
+                aiff_data.name.resize(chunk_header.ck_size); // Resize container
+                fin.read(reinterpret_cast<std::istream::char_type *>(aiff_data.name.data()), chunk_header.ck_size);
                 if (chunk_header.ck_size % 2 != 0) fin.seekg(1, std::ios_base::cur);
                 continue;
             }
 
             if (ckID == "AUTH") {
-                output.auth.resize(chunk_header.ck_size); // Resize container
-                fin.read(reinterpret_cast<std::istream::char_type *>(output.auth.data()), chunk_header.ck_size);
+                aiff_data.auth.resize(chunk_header.ck_size); // Resize container
+                fin.read(reinterpret_cast<std::istream::char_type *>(aiff_data.auth.data()), chunk_header.ck_size);
                 if (chunk_header.ck_size % 2 != 0) fin.seekg(1, std::ios_base::cur);
                 continue;
             }
 
             if (ckID == "(c) ") {
-                output.copyright.resize(chunk_header.ck_size); // Resize container
-                fin.read(reinterpret_cast<std::istream::char_type *>(output.copyright.data()), chunk_header.ck_size);
+                aiff_data.copyright.resize(chunk_header.ck_size); // Resize container
+                fin.read(reinterpret_cast<std::istream::char_type *>(aiff_data.copyright.data()), chunk_header.ck_size);
                 if (chunk_header.ck_size % 2 != 0) fin.seekg(1, std::ios_base::cur);
                 continue;
             }
 
             if (ckID == "ANNO") {
-                output.anno.resize(chunk_header.ck_size); // Resize container
-                fin.read(reinterpret_cast<std::istream::char_type *>(output.anno.data()), chunk_header.ck_size);
+                aiff_data.anno.resize(chunk_header.ck_size); // Resize container
+                fin.read(reinterpret_cast<std::istream::char_type *>(aiff_data.anno.data()), chunk_header.ck_size);
                 if (chunk_header.ck_size % 2 != 0) fin.seekg(1, std::ios_base::cur);
                 continue;
             }
@@ -93,9 +93,9 @@ aiffData scanFile(std::ifstream& fin, const bool verbose) {
                     fin.read(reinterpret_cast<std::istream::char_type *>(text.data()), fromBigEndianInt(comment_header.count));
                     aiffComment comment{
                         .marker_id = fromBigEndianInt(comment_header.marker_id),
-                        .text = std::string(text.begin(), text.end()),
+                        .text = iso88591ToUtf8(text.begin(), text.end()),
                     };
-                    output.comments.push_back(comment);
+                    aiff_data.comments.push_back(comment);
                     if (comment_header.count % 2 != 0) fin.seekg(1, std::ios_base::cur);
                 }
                 continue;
@@ -108,5 +108,5 @@ aiffData scanFile(std::ifstream& fin, const bool verbose) {
             if (verbose) std::cout << "current position: " << fin.tellg() << "\n";
         }
     }
-    return output;
+    return aiff_data;
 }

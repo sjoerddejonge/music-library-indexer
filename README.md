@@ -408,6 +408,7 @@ functionality like help text.
 
 ### To-do
 * `[ ]` Refactor TXXX and WXXX structure in JSON
+* `[ ]` Refactor to allow for multiple APIC and COMM frames in the JSON
 * `[ ]` Testing UTF-16 tags
 * `[ ]` Evaluate whether empty ID3 frames should throw a runtime error
 * `[ ]` Add sanitation flag to `index` command to strip unicode control
