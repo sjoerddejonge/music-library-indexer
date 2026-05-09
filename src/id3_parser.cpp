@@ -12,10 +12,11 @@
 #include "../include/nlohmann/json.hpp"
 
 
-// Append the ID3 tag to the JSON as item it.
+// Return a song
 //
 // Arguments:
-// - fin:       Reference to the ifstream at the start of the ID3 tag.
+// - fin:       Reference to the ifstream of the music file.
+// - id3_pos:   The std::streampos of the ID3 tag in the music file.
 // - options:   A struct with options for running the command. For default see include/options.hpp
 nlohmann::json id3ToJson(std::ifstream& fin, const std::streampos &id3_pos, const IndexOptions& options) {
     nlohmann::json song;
@@ -61,7 +62,7 @@ ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
     return id3_header;
 }
 
-// Accepts an ifstream at past the ID3 header, scans ID3 frames and writes them to JSON.
+// Accepts an ifstream past the ID3 header, scans ID3 frames and writes them to JSON.
 //
 // Arguments:
 // - fin:           Reference to the ifstream at the start of the first ID3 frame.
@@ -99,7 +100,12 @@ void extractId3Frames(std::ifstream& fin, const ID3Header id3_header, nlohmann::
         if (const auto frame = makeFrame(id3_frame_header, frame_data, options)) {
             nlohmann::json frame_json = frame->toJson();
             if (!frame_json.empty()) {
-                song["id3_frames"].merge_patch(frame_json);
+                if (frame->isArrayType()) {
+                    // Array type frames can hold multiple frames with the same ID (multiple COMMs, or APICs, for example)
+                    song["id3_frames"][frame->header.frameIdToStr()].push_back(frame_json);
+                } else {
+                    song["id3_frames"].merge_patch(frame_json);
+                }
             }
         }
     }
@@ -155,7 +161,7 @@ std::string TextInformationFrame::parseTextInformationFrame(const std::vector<ui
 }
 
 // -------------------------------------
-//              struct TXXX
+//              Struct TXXX
 // -------------------------------------
 
 // Constructs a TXXX, throws error on empty data.
@@ -172,8 +178,15 @@ TXXX::TXXX(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_
 // Returns nlohmann::json for the frame under "frame_id"
 nlohmann::json TXXX::toJson() const {
     nlohmann::json frame;
-    if (!description.empty() || !value.empty()) frame["TXXX"][description] = value;
+    if (!description.empty() || !value.empty()) {
+        frame["description"] = description;
+        frame["value"] = value;
+    }
     return frame;
+}
+
+bool TXXX::isArrayType() {
+    return true;
 }
 
 // (Private) Parse frame data into struct member variable(s).
@@ -193,7 +206,7 @@ std::pair<std::string, std::string> TXXX::parseTXXXFrame(const std::vector<uint8
 }
 
 // -------------------------------------
-//              struct COMM
+//              Struct COMM
 // -------------------------------------
 
 // Constructs a COMM, throws error on empty data.
@@ -212,11 +225,15 @@ COMM::COMM(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_
 nlohmann::json COMM::toJson() const {
     nlohmann::json frame;
     if (!description.empty() || !value.empty()) {
-        frame["COMM"]["language"] = charsToStr(language);
-        frame["COMM"]["description"] = description;
-        frame["COMM"]["comment"] = value;
+        frame["language"] = charsToStr(language);
+        frame["description"] = description;
+        frame["comment"] = value;
     }
     return frame;
+}
+
+bool COMM::isArrayType() {
+    return true;
 }
 
 // (Private) Parse frame data into struct member variable(s).
@@ -256,12 +273,16 @@ APIC::APIC(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_
 nlohmann::json APIC::toJson() const {
     nlohmann::json frame;
     if (!data.empty()) {
-        frame["APIC"]["mime_type"] = mime_type;
-        frame["APIC"]["picture_type"] = picture_type;
-        frame["APIC"]["description"] = description;
-        frame["APIC"]["picture_data"] = base64Encode(data);
+        frame["mime_type"] = mime_type;
+        frame["picture_type"] = picture_type;
+        frame["description"] = description;
+        frame["picture_data"] = base64Encode(data);
     }
     return frame;
+}
+
+bool APIC::isArrayType() {
+    return true;
 }
 
 // (Private) Parse frame data into struct member variable(s).
@@ -347,8 +368,12 @@ WXXX::WXXX(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_
 nlohmann::json WXXX::toJson() const {
     nlohmann::json frame;
     if (!url.empty()) {
-        frame[header.frameIdToStr()]["description"] = description;
-        frame[header.frameIdToStr()]["url"] = url;
+        frame["description"] = description;
+        frame["url"] = url;
     }
     return frame;
+}
+
+bool WXXX::isArrayType() {
+    return true;
 }

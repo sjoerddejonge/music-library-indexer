@@ -70,6 +70,9 @@ struct ID3Frame {
     ID3FrameHeader header{};
     virtual ~ID3Frame() = default;
     [[nodiscard]] virtual nlohmann::json toJson() const = 0;
+    virtual bool isArrayType() {
+        return false;
+    };
 };
 
 //
@@ -100,6 +103,7 @@ struct TXXX : public ID3Frame {
     explicit TXXX(ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data);
     // Append this frame to the JSON.
     [[nodiscard]] nlohmann::json toJson() const override;
+    bool isArrayType() override;
 
 private:
     // (Private) Parse frame data into struct member variable(s).
@@ -116,6 +120,7 @@ struct COMM : public ID3Frame {
     explicit COMM(ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data);
     // Append this frame to the JSON.
     [[nodiscard]] nlohmann::json toJson() const override;
+    bool isArrayType() override;
 
 private:
     // (Private) Parse frame data into struct member variable(s).
@@ -133,6 +138,7 @@ struct APIC : public ID3Frame {
     explicit APIC(ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data);
     // Append this frame to the JSON.
     [[nodiscard]] nlohmann::json toJson() const override;
+    bool isArrayType() override;
 
 private:
     // (Private) Parse frame data into struct member variable(s).
@@ -154,6 +160,7 @@ struct WXXX : public ID3Frame {
 
     explicit WXXX(ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_data);
     [[nodiscard]] nlohmann::json toJson() const override;
+    bool isArrayType() override;
 };
 
 // TODO: Add support for USLT frames:

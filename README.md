@@ -41,11 +41,13 @@ All other files are written by me.
       },
       "filename": "la-femme-dargent.aiff",
       "id3_frames": {
-        "COMM": {
-          "comment": "This is a comment",
-          "description": "",
-          "language": "eng"
-        },
+        "COMM": [
+          {
+            "comment": "This is a comment",
+            "description": "",
+            "language": "eng"
+          }
+        ],
         "TALB": "Moon Safari",
         "TCON": "Electronic",
         "TDRC": "1998",
@@ -59,11 +61,13 @@ All other files are written by me.
     {
       "filename": "la-femme-dargent (remix).aif",
       "id3_frames": {
-        "COMM": {
-          "comment": "This is track is a remix",
-          "description": "",
-          "language": "eng"
-        },
+        "COMM": [
+          {
+            "comment": "This is track is a remix",
+            "description": "",
+            "language": "eng"
+          }
+        ],
         "TALB": "Blue Moon Safari",
         "TCON": "Electronic",
         "TDRC": "2025",
@@ -411,9 +415,10 @@ functionality like help text.
 * `[ ]` Refactor to allow for multiple APIC and COMM frames in the JSON
 * `[ ]` Testing UTF-16 tags
 * `[ ]` Evaluate whether empty ID3 frames should throw a runtime error
-* `[ ]` Add sanitation flag to `index` command to strip unicode control
+* `[ ]` Add sanitation flag to `index` command to strip Unicode control
 chars
 * `[ ]` Improve argument parsing to be more Unix-like
+* `[ ]` Add text encoding detection for AIFF metadata 
 * `[ ]` Fix code TODOs
 * `[ ]` Add support for **ALL** ID3 frames
 * `[ ]` Support more music file formats:
