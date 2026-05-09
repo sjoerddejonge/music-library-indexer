@@ -93,7 +93,7 @@ All other files are written by me.
     * [(b) Forking/cloning](#b-forkingcloning)
     * [(c) Building the app](#c-building-the-app)
   * [3. How to use](#3-how-to-use)
-    * [Running from PATH](#running-from-path)
+    * [Running from `$PATH`](#running-from-path)
     * [Running from your IDE](#running-from-your-ide)
     * [Output](#output)
   * [4. Features](#4-features)
@@ -188,7 +188,7 @@ index       Runs the Music Library Indexer in the current directory. Scans all
 help        Prints this text.
 ```
 
-### Running from PATH
+### Running from `$PATH`
 Run any of the following commands in the terminal.
 ```
 mli index

@@ -4,7 +4,7 @@ title: Supported ID3v2 frames
 ---
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[← Return to homepage](docs/index.md)
+[← Return to documentation index](docs/index.md)
 
 # Supported ID3v2 frames
 ID3v2 frames are represented as structs. A struct can represent a category of frames (such as text
@@ -48,7 +48,7 @@ Taken from the official [documentation](https://id3.org/id3v2.4.0-frames#:~:text
 <details>
 <summary>All supported text information frames</summary>
 
-**Identification frames**
+### Identification frames
 ```text
 TIT1
     The 'Content group description' frame is used if the sound belongs to
@@ -99,7 +99,7 @@ TSRC
     Code [ISRC] (12 characters).
 ```
 
-**Involved persons frames**
+### Involved persons frames
 ```text
 TPE1
     The 'Lead artist/Lead performer/Soloist/Performing group' is
@@ -151,9 +151,9 @@ TENC
     encoder.
 ```
 
-**Derived and subjective properties frames**
+### Derived and subjective properties frames
 
 </details>
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[← Return to homepage](docs/index.md)
+[← Return to documentation index](docs/index.md)
