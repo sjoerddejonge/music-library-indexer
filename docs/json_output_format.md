@@ -105,12 +105,12 @@ The `"meta"` block contains the metadata of the snapshot.
 
 * `"directory"` - The (upper) target directory that the snapshot
   was taken of.
-* `"exported_at` - The timestamps at which the snapshot was taken, in
+* `"exported_at"` - The timestamps at which the snapshot was taken, in
   `YYYY-MM-DDTHH:MM:SSZ` format, with `T` indicating the time section
   and `Z` signalling that the timezone is UTC.
 * `"file_count"` - The amount of music files included in this snapshot,
   as a JSON numeric.
-* `"tool""` - The internal CMake `PROJECT_NAME`, when the app was built.
+* `"tool"` - The internal CMake `PROJECT_NAME`, when the app was built.
   This should always be `"mli"`, even if the user renames their binary and
   runs the app under a different name.
 * `"version"` - The version of the Music Library Indexer that was used
@@ -120,7 +120,7 @@ The `"meta"` block contains the metadata of the snapshot.
 The `"songs"` section has `"meta" > "file_count"` amount of songs, with
 each song containing...
 
-* `"aiff_data` - Metadata extracted from the AIFF format. See
+* `"aiff_data"` - Metadata extracted from the AIFF format. See
   [section AIFF metadata](#aiff-metadata) below.
 * `"filename"` - The filename, with extension, without folders.
 * `"id3_frames"` - The contents of each ID3 frame that the app supports.
@@ -133,7 +133,7 @@ each song containing...
 The following metadata can be extracted from the AIFF files, if present:
 * `"annotation"` - Text containing a comment.
 * `"author"` - Text containing one or more author names.
-* `"comments` - An array containing multiple comments, each with
+* `"comments"` - An array containing multiple comments, each with
   its own keys `"marker_id"` and `"text"`.
 * `"copyright"` - Text containing a copyright notice for the sound.
 * `"name"` - Text containing the name of the song.
@@ -221,7 +221,6 @@ $12     Illustration
 $13     Band/artist logotype
 $14     Publisher/Studio logotype
 ```
-
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
 [Home](index.md) `>` [JSON Output Format (API)](json_output_format.md)

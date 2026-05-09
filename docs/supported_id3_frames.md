@@ -46,6 +46,7 @@ Frames that are of the array type are structured like:
 
 Taken from the official [documentation](https://id3.org/id3v2.4.0-frames#:~:text=Text%20information%20frames,-The) at id3.org:
 <details>
+
 <summary>All supported text information frames</summary>
 
 ### Identification frames
@@ -153,7 +154,7 @@ TENC
 
 ### Derived and subjective properties frames
 
-</details>
+</details>  
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
 [Home](index.md) `>` [Supported ID3v2 frames](supported_id3_frames.md)  
