@@ -4,7 +4,7 @@ title: Supported ID3v2 frames
 ---
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[← Return to documentation index](docs/index.md)
+[← Return to documentation index](index.md)
 
 # Supported ID3v2 frames
 ID3v2 frames are represented as structs. A struct can represent a category of frames (such as text
@@ -156,4 +156,4 @@ TENC
 </details>
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[← Return to documentation index](docs/index.md)
+[← Return to documentation index](index.md)

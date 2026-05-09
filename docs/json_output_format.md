@@ -4,7 +4,7 @@ title: JSON Output Format
 ---
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[← Return to documentation index](docs/index.md)
+[← Return to documentation index](index.md)
 
 # JSON Output Format
 
@@ -22,9 +22,6 @@ title: JSON Output Format
 <!-- TOC -->
 
 ## Example snapshot
-<details>
-
-<summary>Example JSON</summary>
 
 ```json
 {
@@ -91,8 +88,6 @@ title: JSON Output Format
   ]
 }
 ```
-
-</details>
 
 
 ## Meta block
@@ -229,4 +224,4 @@ $14     Publisher/Studio logotype
 
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[← Return to documentation index](docs/index.md)
+[← Return to documentation index](index.md)

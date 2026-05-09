@@ -9,6 +9,7 @@ title: Music Library Indexer docs
 # Getting started
 
 # Contents
-[API/Output page](json_ouput_format.md)
+1. [Output (API)](json_output_format.md)
+2. [Supported ID3v2 frames](supported_id3_frames.md)
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)
