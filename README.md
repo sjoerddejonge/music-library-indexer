@@ -167,6 +167,26 @@ default directory, while 'Release' uses the current working
 directory.
 
 ## 3. How to use
+```text
+┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+┊           Music Library Indexer           ┊          Version: 0.1.0          ┊
+└┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┴┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+
+usage: mli <command> [<args>]
+
+Supported commands:
+index       Runs the Music Library Indexer in the current directory. Scans all
+            (sub)directories for .aiff files, extracts id3 tag metadata, and
+            writes to a JSON in the current/target directory.
+            args:
+            [<path>]    Full path to a directory to scan
+            [-a]        Include APIC (attached picture) frame in JSON, with 
+                        base64 encoding
+            [-v]        Verbose console output
+            [--shallow] Single directory only (no subdirectories)
+
+help        Prints this text.
+```
 
 ### Running from PATH
 Run any of the following commands in the terminal.
@@ -223,11 +243,13 @@ The output will be a `JSON`. Here is an example of the output:
       },
       "filename": "la-femme-dargent.aiff",
       "id3_frames": {
-        "COMM": {
-          "comment": "This is a comment",
-          "description": "",
-          "language": "eng"
-        },
+        "COMM": [
+          {
+            "comment": "This is a comment",
+            "description": "",
+            "language": "eng"
+          }
+        ],
         "TALB": "Moon Safari",
         "TCON": "Electronic",
         "TDRC": "1998",
@@ -241,11 +263,13 @@ The output will be a `JSON`. Here is an example of the output:
     {
       "filename": "la-femme-dargent (remix).aif",
       "id3_frames": {
-        "COMM": {
-          "comment": "This is track is a remix",
-          "description": "",
-          "language": "eng"
-        },
+        "COMM": [
+          {
+            "comment": "This is track is a remix",
+            "description": "",
+            "language": "eng"
+          }
+        ],
         "TALB": "Blue Moon Safari",
         "TCON": "Electronic",
         "TDRC": "2025",
@@ -411,8 +435,6 @@ functionality like help text.
 * `[x]` Write the JSON to a file
 
 ### To-do
-* `[ ]` Refactor TXXX and WXXX structure in JSON
-* `[ ]` Refactor to allow for multiple APIC and COMM frames in the JSON
 * `[ ]` Testing UTF-16 tags
 * `[ ]` Evaluate whether empty ID3 frames should throw a runtime error
 * `[ ]` Add sanitation flag to `index` command to strip Unicode control
@@ -424,5 +446,7 @@ chars
 * `[ ]` Support more music file formats:
   * `[ ]` Add support for `.flac` music files
   * `[ ]` Add support for `.mp3` music files
+* `[x]` Refactor TXXX and WXXX structure in JSON
+* `[x]` Refactor to allow for multiple APIC and COMM frames in the JSON
 * `[x]` Add `.aiff` text chunks to JSON
 * `[x]` Decouple the ID3 parsing logic from the AIFF reader

@@ -51,9 +51,12 @@ void commands::index(const std::filesystem::path& directory_path, const IndexOpt
 // Print help text for instructions on how to use this program.
 void commands::help() {
                 //  ================================================================================
-    std::cout   << "Music Library Indexer" << std::format("                     version: {}\n", program::version())
+    std::cout   // << "Music Library Indexer" << std::format("                     version: {}\n", program::version())
+                << "┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐\n"
+    << std::format( "┊           Music Library Indexer           ┊          Version: {}          ┊\n", program::version())
+                << "└┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┴┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘\n"
                 << "\n"
-                << std::format("  usage: {} <command> [<args>]\n", program::name())
+                << std::format("usage: {} <command> [<args>]\n", program::name())
                 << "\n"
                 << "Supported commands:\n"
                 << "index       Runs the Music Library Indexer in the current directory. Scans all\n"
@@ -67,5 +70,20 @@ void commands::help() {
                 << "            [--shallow] Single directory only (no subdirectories)\n"
                 << "\n"
                 << "help        Prints this text.\n"
+                << "\n"
     ;           //  ================================================================================
 }
+
+
+                // << "╔═══════════════════════════════╗\n"
+                // << "║                               ║\n"
+                // << "║     Music Library Indexer     ║\n"
+                // << "║                               ║\n"
+                // << "╠═══════════════════════════════╣\n"
+                // << "║         Version 0.1.0         ║\n"
+                // << "╚═══════════════════════════════╝\n"
+
+                // << "┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┬┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐\n"
+                // << "┊           Music Library Indexer           ┊          Version: 0.1.0          ┊\n"
+                // << "└┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┴┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘\n"
+                //     ================================================================================
