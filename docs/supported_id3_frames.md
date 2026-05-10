@@ -6,13 +6,10 @@ title: Music Library Indexer
 <div style="display: flex; justify-content: space-between;">
     <span>
         <a href="{{ site.baseurl }}">Home</a> <code>></code> 
-        <a href="{{ site.baseurl }}/supported_id3_frames.html">Supported ID3v2 frames</a>
+        <a href="/supported_id3_frames.html">Supported ID3v2 frames</a>
     </span>
     <a href="{{ site.repo_url }}"> ← Return to repo </a>
 </div>
-
-
-[Home](index.md) `>` [Supported ID3v2 frames](supported_id3_frames.md)
 
 ---
 

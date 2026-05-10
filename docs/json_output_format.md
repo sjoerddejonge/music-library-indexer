@@ -3,7 +3,13 @@ layout: page
 title: Music Library Indexer
 ---
 
-[Home](index.md) `>` [JSON Output Format](json_output_format.md)
+<div style="display: flex; justify-content: space-between;">
+    <span>
+        <a href="{{ site.baseurl }}">Home</a> <code>></code> 
+        <a href="/json_output_format.html">JSON Output Format</a>
+    </span>
+    <a href="{{ site.repo_url }}"> ← Return to repo </a>
+</div>
 
 ---
 
