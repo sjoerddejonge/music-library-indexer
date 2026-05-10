@@ -3,6 +3,15 @@ layout: page
 title: Music Library Indexer
 ---
 
+<div style="display: flex; justify-content: space-between;">
+    <span>
+        <a href="{{ site.baseurl }}">Home</a> <code>></code> 
+        <a href="{{ site.baseurl }}/supported_id3_frames.html">Supported ID3v2 frames</a>
+    </span>
+    <a href="{{ site.repo_url }}"> ← Return to repo </a>
+</div>
+
+
 [Home](index.md) `>` [Supported ID3v2 frames](supported_id3_frames.md)
 
 ---
@@ -51,6 +60,7 @@ Taken from the official [documentation](https://id3.org/id3v2.4.0-frames#:~:text
 <summary>All supported text information frames</summary>
 
 ### Identification frames
+
 ```text
 TIT1
     The 'Content group description' frame is used if the sound belongs to
@@ -102,6 +112,7 @@ TSRC
 ```
 
 ### Involved persons frames
+
 ```text
 TPE1
     The 'Lead artist/Lead performer/Soloist/Performing group' is
@@ -156,5 +167,6 @@ TENC
 ### Derived and subjective properties frames
 
 </details>  
+
 
 [← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)   
