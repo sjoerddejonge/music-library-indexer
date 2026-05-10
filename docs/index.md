@@ -1,13 +1,13 @@
 ---
 layout: page
-title: Music Library Indexer docs
+title: Music Library Indexer Docs
 ---
 
 [Home](index.md)  
 
 The documentation for the [Music Library Indexer repository](https://github.com/sjoerddejonge/music-library-indexer).
 
-## Documentation
+# Documentation
 * Usage
   * Installation
   * How to use
