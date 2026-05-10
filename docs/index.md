@@ -2,11 +2,11 @@
 layout: page
 title: Music Library Indexer docs
 ---
-
-[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
 [Home](index.md)
 
-# Documentation
+The documentation for the [Music Library Indexer repository](https://github.com/sjoerddejonge/music-library-indexer).
+
+## Documentation
 * Usage
   * Installation
   * How to use
@@ -18,5 +18,4 @@ title: Music Library Indexer docs
   * Known limitations
   * Roadmap
 
-[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[Home](index.md)  
+[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)

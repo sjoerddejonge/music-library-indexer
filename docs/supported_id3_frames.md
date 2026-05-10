@@ -2,8 +2,6 @@
 layout: page
 title: Supported ID3v2 frames
 ---
-
-[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
 [Home](index.md) `>` [Supported ID3v2 frames](supported_id3_frames.md)
 
 # Supported ID3v2 frames
@@ -156,5 +154,4 @@ TENC
 
 </details>  
 
-[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[Home](index.md) `>` [Supported ID3v2 frames](supported_id3_frames.md)  
+[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)   

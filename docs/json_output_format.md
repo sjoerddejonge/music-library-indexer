@@ -2,14 +2,12 @@
 layout: page
 title: JSON Output Format
 ---
+[Home](index.md) `>` [JSON Output Format](json_output_format.md)
 
-[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[Home](index.md) `>` [JSON Output Format (API)](json_output_format.md)
-
-# JSON Output Format (API)
+# JSON Output Format
 
 <!-- TOC -->
-* [JSON Output Format (API)](#json-output-format-api)
+* [JSON Output Format](#json-output-format)
   * [Example snapshot](#example-snapshot)
   * [Meta block](#meta-block)
   * [Songs](#songs)
@@ -222,5 +220,4 @@ $13     Band/artist logotype
 $14     Publisher/Studio logotype
 ```
 
-[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)  
-[Home](index.md) `>` [JSON Output Format (API)](json_output_format.md)
+[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)
