@@ -11,12 +11,14 @@ title: Music Library Indexer
     <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
 </div>
 
+---
+
 # How to use
 
 After installing `mli` to the `$PATH`, run it in the terminal in any 
 directory of choice.
 
-![Example use of mli](docs/mli_terminal_example.gif)
+<img src="docs/mli_terminal_example.gif"></img>
 
 Available commands for `mli`:
 ```text
@@ -39,3 +41,8 @@ index       Runs the Music Library Indexer in the current directory. Scans all
 
 help        Prints this text.
 ```
+
+---
+<div style="display: flex; justify-content: right;">
+    <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
+</div>
