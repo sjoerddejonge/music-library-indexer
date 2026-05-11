@@ -20,14 +20,14 @@ The documentation for the [Music Library Indexer repository](https://github.com/
 * Usage
   * [Installation](installation.md)
   * [How to use](how_to_use.md)
-  * Supported File Formats
+  * [Supported File Formats](supported_file_formats.md)
 * Output / API
   * [JSON Output Format](json_output_format.md)
   * [Supported ID3v2 frames](supported_id3_frames.md)
-  * Format Specific Metadata
 * Development
   * Building from Source
-  * Known Limitations
+  * Adding File Formats
+  * [Known Issues (GitHub Issues ↗)](https://github.com/sjoerddejonge/music-library-indexer/issues)
   * Roadmap
 
 ---

@@ -18,7 +18,7 @@ title: Music Library Indexer
 After installing `mli` to the `$PATH`, run it in the terminal in any 
 directory of choice.
 
-<img src="docs/mli_terminal_example.gif"></img>
+<img src="mli_terminal_example.gif" alt="Animation of a terminal window running the MLI app">
 
 Available commands for `mli`:
 ```text
