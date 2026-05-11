@@ -19,17 +19,18 @@ title: Music Library Indexer
 * [JSON Output Format](#json-output-format)
   * [Example snapshot](#example-snapshot)
   * [Meta block](#meta-block)
-  * [Songs](#songs)
-  * [AIFF metadata](#aiff-metadata)
-  * [ID3 frames](#id3-frames)
-    * [Text information frames](#text-information-frames)
-    * [TXXX frames](#txxx-frames)
-    * [COMM frames](#comm-frames)
-    * [APIC frames](#apic-frames)
+  * [Songs array](#songs-array)
+    * [AIFF metadata](#aiff-metadata)
+    * [ID3 frames](#id3-frames)
+      * [Text information frames](#text-information-frames)
+      * [TXXX frames](#txxx-frames)
+      * [COMM frames](#comm-frames)
+      * [APIC frames](#apic-frames)
 <!-- TOC -->
 
 ## Example snapshot
-
+The code block below shows an example snapshot of just two songs. The 
+`picture_data` of the `APIC` frame in the second song is shortened to avoid unnecessary long lines.
 ```json
 {
   "meta": {
@@ -123,7 +124,7 @@ The `"meta"` block contains the metadata of the snapshot.
 * `"version"` - The version of the Music Library Indexer that was used
   to make this snapshot.
 
-## Songs
+## Songs array
 The `"songs"` section has `"meta" > "file_count"` amount of songs, with
 each song containing...
 
@@ -136,7 +137,7 @@ each song containing...
 * `"relative_path"` - The path of the file, excluding the base path
   defined under `"meta" > "directory"`.
 
-## AIFF metadata
+### AIFF metadata
 The following metadata can be extracted from the AIFF files, if present:
 * `"annotation"` - Text containing a comment.
 * `"author"` - Text containing one or more author names.
@@ -146,32 +147,33 @@ The following metadata can be extracted from the AIFF files, if present:
 * `"name"` - Text containing the name of the song.
 
 
-## ID3 frames
+### ID3 frames
 This section lists the supported ID3 frames. All frames start with
 their ID3 frame ID, consisting of four letters.
 
-### Text information frames
+#### Text information frames
 All frames starting with a `T`, excluding `TXXX`, are text information
 frames. These hold exactly one string, with `"TALB"` as example:
 ```json
 "TALB": "Album name"
 ```
-### TXXX frames
-A `TXXX` frame is a user defined text frames and follow the
-`"description": "value"` structure. A file can contain more
-than one `TXXX` frame, but only for each unique `"description"`. In
-the following example, the `"description"` is `"ISRC"`, and the value
-is `"CA-M26-01-50003"`:
+#### TXXX frames
+A `TXXX` frame is a user defined text frames and can contain a description and value. A file can contain more
+than one `TXXX` frame, but only for each unique `"description"`. `TXXX` frames are included under the `"TXXX"` key as an array:
 ```json
-"TXXX": {
-  "ISRC": "CA-M26-01-50003"
-}
+"TXXX": [
+  {
+    "description": "ISRC",
+    "value": "NLM792500150"
+  },
+  {
+    "description": "CATALOGNUMBER",
+    "value": "Dsr-x23"
+  }
+]
 ```
-When there is more than one `"TXXX"` frame, the different frames are
-added under the same key (`"TXXX"`), using their unique description as
-sub-key.
 
-### COMM frames
+#### COMM frames
 A comment frame, `COMM`, is used for adding comments to songs. Besides
 the comment, it may contain a description and a language (using 3
 characters for the language). `"COMM"` is an array containing all the
@@ -186,7 +188,7 @@ COMM frames found in the song.
 ]
 ```
 
-### APIC frames
+#### APIC frames
 An `APIC` (attached picture) frame is optional when the indexer is
 executed with the `mli index -a` argument. The picture data that is
 embedded in the ID3 tag is encoded to text using Base64, resulting in

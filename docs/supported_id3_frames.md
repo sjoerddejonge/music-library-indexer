@@ -56,9 +56,9 @@ Taken from the official [documentation](https://id3.org/id3v2.4.0-frames#:~:text
 
 <summary>All supported text information frames</summary>
 
-### Identification frames
+<h3> Identification frames </h3>
 
-```text
+<pre><code>
 TIT1
     The 'Content group description' frame is used if the sound belongs to
     a larger category of sounds/music. For example, classical music is
@@ -106,11 +106,11 @@ TSST
 TSRC
     The 'ISRC' frame should contain the International Standard Recording
     Code [ISRC] (12 characters).
-```
+</code></pre>
 
-### Involved persons frames
+<h3> Involved persons frames </h3>
 
-```text
+<pre><code>
 TPE1
     The 'Lead artist/Lead performer/Soloist/Performing group' is
     used for the main artist.
@@ -159,9 +159,9 @@ TENC
     organisation that encoded the audio file. This field may contain a
     copyright message, if the audio file also is copyrighted by the
     encoder.
-```
+</code></pre>
 
-### Derived and subjective properties frames
+<h3> Derived and subjective properties frames </h3>
 To-do.
 
 </details>  

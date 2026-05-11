@@ -44,7 +44,7 @@ yourself)
 * Rename it to just `mli.exe`
 
 * Add that folder to your `$PATH`:
-  * Search for `env` in the Start menu
+  * Search for `env` in the Start menu (<kbd>Win</kbd> + "env")
   * Click "Environment Variables"
   * Edit the "Path" variable
   * Add the folder you copied `mli.exe` to
