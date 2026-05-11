@@ -5,10 +5,10 @@ title: Music Library Indexer
 
 <div style="display: flex; justify-content: space-between;">
     <span>
-        <a href="{{ site.baseurl }}">Home</a> <code>></code> 
+        <a href="{{ site.baseurl }}">{{ site.index_page_name }}</a> <code>></code> 
         <a href="/supported_id3_frames.html">Supported ID3v2 frames</a>
     </span>
-    <a href="{{ site.repo_url }}"> ← Return to repo </a>
+    <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
 </div>
 
 ---
@@ -169,6 +169,6 @@ To-do.
 
 ---
 <div style="display: flex; justify-content: right;">
-    <a href="{{ site.repo_url }}"> ← Return to repo </a>
+    <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
 </div>
 

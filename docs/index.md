@@ -5,9 +5,9 @@ title: Music Library Indexer
 
 <div style="display: flex; justify-content: space-between;">
     <span>
-        <a href="{{ site.baseurl }}">Home</a>
+        <a href="{{ site.baseurl }}">{{ site.index_page_name }}</a>
     </span>
-    <a href="{{ site.repo_url }}"> ← Return to repo </a>
+    <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
 </div>
 
 ---
@@ -19,7 +19,7 @@ The documentation for the [Music Library Indexer repository](https://github.com/
 ## Documentation
 * Usage
   * [Installation](installation.md)
-  * How to use
+  * [How to use](how_to_use.md)
   * Supported File Formats
 * Output / API
   * [JSON Output Format](json_output_format.md)
@@ -32,5 +32,5 @@ The documentation for the [Music Library Indexer repository](https://github.com/
 
 ---
 <div style="display: flex; justify-content: right;">
-    <a href="{{ site.repo_url }}"> ← Return to repo </a>
+    <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
 </div>
