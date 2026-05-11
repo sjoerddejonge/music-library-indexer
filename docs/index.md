@@ -18,7 +18,7 @@ The documentation for the [Music Library Indexer repository](https://github.com/
 
 ## Documentation
 * Usage
-  * Installation
+  * [Installation](installation.md)
   * How to use
   * Supported File Formats
 * Output / API
@@ -30,4 +30,7 @@ The documentation for the [Music Library Indexer repository](https://github.com/
   * Known Limitations
   * Roadmap
 
-[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)
+---
+<div style="display: flex; justify-content: right;">
+    <a href="{{ site.repo_url }}"> ← Return to repo </a>
+</div>

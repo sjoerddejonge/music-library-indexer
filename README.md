@@ -446,6 +446,7 @@ chars
 * `[ ]` Support more music file formats:
   * `[ ]` Add support for `.flac` music files
   * `[ ]` Add support for `.mp3` music files
+* `[ ]` GitHub Actions to build a Linux binary
 * `[x]` Refactor TXXX and WXXX structure in JSON
 * `[x]` Refactor to allow for multiple APIC and COMM frames in the JSON
 * `[x]` Add `.aiff` text chunks to JSON

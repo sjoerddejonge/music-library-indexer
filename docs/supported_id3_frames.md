@@ -162,8 +162,13 @@ TENC
 ```
 
 ### Derived and subjective properties frames
+To-do.
 
 </details>  
 
 
-[← Return to repo](https://github.com/sjoerddejonge/music-library-indexer)   
+---
+<div style="display: flex; justify-content: right;">
+    <a href="{{ site.repo_url }}"> ← Return to repo </a>
+</div>
+
