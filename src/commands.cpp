@@ -2,7 +2,7 @@
 // Created by Sjoerd de Jonge on 24/04/2026.
 //
 
-#include "../include/commands.hpp"
+#include "commands.hpp"
 
 #include <iostream>
 #include <filesystem>
