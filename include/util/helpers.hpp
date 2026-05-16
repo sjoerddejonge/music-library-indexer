@@ -44,6 +44,32 @@ inline float fromBigEndianFloat(const float value) {
     }
 }
 
+/**
+ * @brief Convert a synchsafe array of four ints to a regular 32 bit int.
+ * @param value An array of 4 synchsafe integer bytes
+ * @return An unsigned 32-bit int containing a 28 bit value
+ */
+inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
+    const uint32_t a = (value[0] & 0b01111111) << 21;
+    const uint32_t b = (value[1] & 0b01111111) << 14;
+    const uint32_t c = (value[2] & 0b01111111) << 7;
+    const uint32_t d = value[3] & 0b01111111;
+    const uint32_t result = a | b | c | d;
+    return result;
+}
+
+/**
+ * @brief Convert an array of four uint8_t integers to one 32 bit int.
+ * @param value An array of four uint8_t integers
+ * @return An unsigned 32-bit int
+ */
+inline uint32_t fromArrayToInt32(const std::array<uint8_t, 4>& value) {
+    return static_cast<uint32_t>(value[0]) |
+            (static_cast<uint32_t>(value[1]) << 8) |
+            (static_cast<uint32_t>(value[2]) << 16) |
+            (static_cast<uint32_t>(value[3]) << 24);
+}
+
 template <std::random_access_iterator Iterator>
 std::string iso88591ToUtf8(Iterator begin, Iterator end) {
     std::string result;

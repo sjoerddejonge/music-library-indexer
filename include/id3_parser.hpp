@@ -66,7 +66,13 @@ struct ID3Header {
      * @brief Get the size of the ID3 header as int32_t. Converts from big endian to native endian.
      * @return The size of the data in this frame, as an unsigned 32-bit integer
      */
-    [[nodiscard]] uint32_t getSize() const;
+    [[nodiscard]] uint32_t getSize() const {
+        if (version[0] >= 4) {
+            return fromSynchsafe32(size);
+        }
+        // Return array of four uint8_t as one uint32_t
+        return fromBigEndianInt(fromArrayToInt32(size));
+    }
 };
 #pragma pack(pop)
 
@@ -103,7 +109,10 @@ struct ID3FrameHeader {
      * @param synchsafe Whether the size is a synchsafe integer (requires additional processing)
      * @return The size of the data in this frame, as an unsigned 32-bit integer
      */
-    [[nodiscard]] uint32_t getSize(bool synchsafe) const;
+    [[nodiscard]] uint32_t getSize(bool synchsafe) const {
+        if (synchsafe) return fromSynchsafe32(size);
+        return fromBigEndianInt(fromArrayToInt32(size));
+    }
 };
 #pragma pack(pop)
 
