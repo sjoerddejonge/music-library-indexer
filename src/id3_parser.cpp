@@ -37,9 +37,27 @@ static nlohmann::json extractId3Frames(std::ifstream& fin, ID3Header id3_header,
  * @param frame_header Header of the ID3 frame
  * @param data Byte vector with the data of the frame minus the header
  * @param options IndexOptions for 'include_apic' to toggle APIC frame inclusion in output
- * @return
+ * @return A std::unique_ptr to the ID3 frame struct
  */
 static std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& data, const IndexOptions& options);
+
+//
+//  Internal helper functions:
+//
+
+/**
+ * @brief Convert a synchsafe array of four ints to a regular 32 bit int.
+ * @param value An array of 4 synchsafe integer bytes
+ * @return An unsigned 32-bit int containing a 28 bit value
+ */
+static uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value);
+
+/**
+ * @brief Convert an array of four uint8_t integers to one 32 bit int.
+ * @param value An array of four uint8_t integers
+ * @return An unsigned 32-bit int
+ */
+static uint32_t fromArrayToInt32(const std::array<uint8_t, 4>& value);
 
 nlohmann::json id3ToJson(std::ifstream& fin, const std::streampos &id3_pos, const IndexOptions& options) {
     // Move to start of ID3 tag
@@ -132,6 +150,25 @@ std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vect
     if (id[0] == 'T') return std::make_unique<TextInformationFrame>(frame_header, data);
     if (id[0] == 'W') return std::make_unique<UrlLinkFrame>(frame_header, data);
     return nullptr;
+}
+
+/**
+ *  ==========================================
+ *           Header Structs methods:
+ *  ==========================================
+ */
+
+uint32_t ID3Header::getSize() const {
+    if (version[0] >= 4) {
+        return fromSynchsafe32(size);
+    }
+    // Return array of four uint8_t as one uint32_t
+    return fromBigEndianInt(fromArrayToInt32(size));
+}
+
+uint32_t ID3FrameHeader::getSize(const bool synchsafe) const {
+    if (synchsafe) return fromSynchsafe32(size);
+    return fromBigEndianInt(fromArrayToInt32(size));
 }
 
 /**
@@ -379,4 +416,21 @@ nlohmann::json WXXX::toJson() const {
 
 bool WXXX::isArrayType() {
     return true;
+}
+
+
+static uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
+    const uint32_t a = (value[0] & 0b01111111) << 21;
+    const uint32_t b = (value[1] & 0b01111111) << 14;
+    const uint32_t c = (value[2] & 0b01111111) << 7;
+    const uint32_t d = value[3] & 0b01111111;
+    const uint32_t result = a | b | c | d;
+    return result;
+}
+
+static uint32_t fromArrayToInt32(const std::array<uint8_t, 4>& value) {
+    return static_cast<uint32_t>(value[0]) |
+            (static_cast<uint32_t>(value[1]) << 8) |
+            (static_cast<uint32_t>(value[2]) << 16) |
+            (static_cast<uint32_t>(value[3]) << 24);
 }

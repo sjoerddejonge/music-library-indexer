@@ -12,8 +12,7 @@
 #ifndef MUSIC_LIBRARY_INDEXER_HELPERS_H
 #define MUSIC_LIBRARY_INDEXER_HELPERS_H
 
-
-
+// TODO: Move functions that are used by one implementation file to that file as static functions
 
 // Convert any std::array<char, N> to std::string
 template <size_t N>
@@ -33,23 +32,6 @@ T fromBigEndianInt(T value) {
     }
 }
 
-// Convert a synchsafe array of 4 ints to a regular 32 bit int.
-inline uint32_t fromSynchsafe32(const std::array<uint8_t, 4>& value) {
-    const uint32_t a = (value[0] & 0b01111111) << 21;
-    const uint32_t b = (value[1] & 0b01111111) << 14;
-    const uint32_t c = (value[2] & 0b01111111) << 7;
-    const uint32_t d = value[3] & 0b01111111;
-    const uint32_t result = a | b | c | d;
-    return result;
-}
-
-inline uint32_t fromArrayToInt32(const std::array<uint8_t, 4>& value) {
-    return static_cast<uint32_t>(value[0]) |
-            (static_cast<uint32_t>(value[1]) << 8) |
-            (static_cast<uint32_t>(value[2]) << 16) |
-            (static_cast<uint32_t>(value[3]) << 24);
-}
-
 // Convert float from big endian to native endianness.
 inline float fromBigEndianFloat(const float value) {
     if constexpr (std::endian::native == std::endian::big) {
@@ -60,20 +42,6 @@ inline float fromBigEndianFloat(const float value) {
         asInt = std::byteswap(asInt);
         return std::bit_cast<float>(asInt);
     }
-}
-
-// Find terminating double byte $00 00 in a vector of bytes.
-template <std::random_access_iterator Iterator>
-Iterator findTerminatingIterator(Iterator begin, Iterator end) {
-    Iterator it = begin;
-    while (it < end) {
-        auto next = std::next(it, 1);
-        if (next == end) break;
-        if (*it == 0x00 && *next == 0x00) return it;
-
-        std::advance(it, 2);
-    }
-    return end;
 }
 
 template <std::random_access_iterator Iterator>

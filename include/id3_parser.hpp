@@ -28,7 +28,7 @@
  */
 
 // TODO: Add errors to frame type constructors and parsing functions to account for malformed data
-// TODO: Only call fromSynchsafe32() helper when ID3 header flag bit a is not set
+// TODO: Only call fromSynchsafe32() helper when ID3 header flag bit `a` is not set
     // TODO: Add ID3HeaderOptions struct to store ID3 header flags?
     // > That way we can pass down information like the unsynchronization flag or ID3 version (v2.3.0 or v2.4.0)
 // TODO: Move helper functions that are only used in id3_parser.cpp to the implementation file only (declutter global namespace)
@@ -66,13 +66,7 @@ struct ID3Header {
      * @brief Get the size of the ID3 header as int32_t. Converts from big endian to native endian.
      * @return The size of the data in this frame, as an unsigned 32-bit integer
      */
-    [[nodiscard]] uint32_t getSize() const {
-        if (version[0] >= 4) {
-            return fromSynchsafe32(size);
-        }
-        // Return array of four uint8_t as one uint32_t
-        return fromBigEndianInt(fromArrayToInt32(size));
-    }
+    [[nodiscard]] uint32_t getSize() const;
 };
 #pragma pack(pop)
 
@@ -109,10 +103,7 @@ struct ID3FrameHeader {
      * @param synchsafe Whether the size is a synchsafe integer (requires additional processing)
      * @return The size of the data in this frame, as an unsigned 32-bit integer
      */
-    [[nodiscard]] uint32_t getSize(const bool synchsafe) const {
-        if (synchsafe) return fromSynchsafe32(size);
-        return fromBigEndianInt(fromArrayToInt32(size));
-    }
+    [[nodiscard]] uint32_t getSize(bool synchsafe) const;
 };
 #pragma pack(pop)
 
@@ -428,9 +419,11 @@ struct WXXX : public ID3Frame {
 //     std::string lyrics;
 // };
 
+
+
 // ====================================================================================================================
 //
-//      Functions
+//      Public Functions
 //
 // ====================================================================================================================
 
@@ -443,6 +436,33 @@ struct WXXX : public ID3Frame {
  */
 nlohmann::json id3ToJson(std::ifstream& fin, const std::streampos &id3_pos, const IndexOptions& options);
 
+
+
+// ====================================================================================================================
+//
+//      Internal Template Functions
+//
+// ====================================================================================================================
+
+/**
+ * @brief Find terminating double byte $00 00 in a vector of bytes.
+ * @tparam Iterator A random access iterator.
+ * @param begin Start Iterator of the vector.
+ * @param end End Iterator of the vector
+ * @return Either an Iterator at the null terminating byte or an Iterator at the end of the vector
+ */
+template <std::random_access_iterator Iterator>
+static Iterator findTerminatingIterator(Iterator begin, Iterator end) {
+    Iterator it = begin;
+    while (it < end) {
+        auto next = std::next(it, 1);
+        if (next == end) break;
+        if (*it == 0x00 && *next == 0x00) return it;
+
+        std::advance(it, 2);
+    }
+    return end;
+}
 
 /**
  * @brief Reads a field of a frame to UTF-8 string. From the start to the end OR null terminator if found.
