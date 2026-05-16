@@ -5,7 +5,8 @@ title: Music Library Indexer
 
 <div style="display: flex; justify-content: space-between;">
     <span>
-        <a href="{{ site.baseurl }}">{{ site.index_page_name }}</a> <code>></code> 
+        <a href="{{ site.baseurl }}">{{ site.index_page_name }}</a> 
+        <code>></code> 
         <a href="/json_output_format.html">JSON Output Format</a>
     </span>
     <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
