@@ -4,6 +4,7 @@
 
 #pragma once
 #include <bit>
+#include <iostream>
 #include <concepts>
 #include <string>
 #include <filesystem>
