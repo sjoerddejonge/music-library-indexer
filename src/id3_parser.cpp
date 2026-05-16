@@ -41,8 +41,9 @@ static nlohmann::json extractId3Frames(std::ifstream& fin, ID3Header id3_header,
  */
 static std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& data, const IndexOptions& options);
 
+// Public interface function
 nlohmann::json id3ToJson(std::ifstream& fin, const std::streampos &id3_pos, const IndexOptions& options) {
-    // Move to start of ID3 tag
+    // Move to start of ID3 tag.
     fin.seekg(id3_pos);
     // Extract ID3 header.
     const ID3Header id3_header = parseId3Header(fin, options);

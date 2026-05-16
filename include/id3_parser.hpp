@@ -27,11 +27,11 @@
  *  b. Frame data
  */
 
+// TODO: Refactor to move structs to .cpp if it is not part of the public interface
 // TODO: Add errors to frame type constructors and parsing functions to account for malformed data
 // TODO: Only call fromSynchsafe32() helper when ID3 header flag bit `a` is not set
-    // TODO: Add ID3HeaderOptions struct to store ID3 header flags?
+    // TODO: Add ID3HeaderOptions struct to store ID3 header flags? (Or include in IndexOptions? Or just a bool)
     // > That way we can pass down information like the unsynchronization flag or ID3 version (v2.3.0 or v2.4.0)
-// TODO: Move helper functions that are only used in id3_parser.cpp to the implementation file only (declutter global namespace)
 
 static_assert(true); // Dummy declaration to stop clangd bug from giving false warning for #pragma pack(push, 1) line
 
@@ -63,7 +63,7 @@ struct ID3Header {
     std::array<uint8_t, 4> size;            // 32 bits (for v2.4.0 Synchsafe) integer (4 * %0xxxxxxx)
 
     /**
-     * @brief Get the size of the ID3 header as int32_t. Converts from big endian to native endian.
+     * @brief Get the size of the ID3 header as uint32_t. Converts from big endian to native endian.
      * @return The size of the data in this frame, as an unsigned 32-bit integer
      */
     [[nodiscard]] uint32_t getSize() const {
@@ -93,7 +93,7 @@ struct ID3FrameHeader {
     /// If an unknown flag is set in the first byte the frame MUST NOT be changed without that bit cleared. If an
     /// unknown flag is set in the second byte the frame is likely to not be readable.
     ///
-    /// See: https://id3.org/id3v2.4.0-structure#:~:text=Frame%20header%20flags,-In for flag bit details.
+    /// @see: https://id3.org/id3v2.4.0-structure#:~:text=Frame%20header%20flags,-In
     std::array<uint8_t, 2> flags;           // 16 bits, two flag bytes
 
     /**
@@ -132,6 +132,7 @@ struct ID3Frame {
     /**
      * @brief Whether the returned frame is of array type. Array type frames can have multiple occurrences of the same
      * ID3 frame. For example: multiple COMM or TXXX frames in one song.
+     * @return @code false@endcode or @code true@endcode
      */
     virtual bool isArrayType() {
         return false;
@@ -174,7 +175,7 @@ struct TextInformationFrame : public ID3Frame {
 
     /**
      * @brief Write this frame to a JSON.
-     * @return JSON as {"frame_id": "value"}
+     * @return JSON as @code {"frame_id": "value"}@endcode
      */
     [[nodiscard]] nlohmann::json toJson() const override;
 
@@ -220,7 +221,7 @@ struct TXXX : public ID3Frame {
      * @brief Write this frame to a JSON.
      *
      * Because the TXXX is an array type, multiple TXXX frames can be included under the "TXXX" key in the songs' JSON.
-     * @return JSON as {"description": "description", "value": "value"}
+     * @return JSON as @code {"description": "description", "value": "value"}@endcode
      */
     [[nodiscard]] nlohmann::json toJson() const override;
 
@@ -275,13 +276,13 @@ struct COMM : public ID3Frame {
      * @brief Write this frame to a JSON.
      *
      * Because the COMM is an array type, multiple COMM frames can be included under the "COMM" key in the songs' JSON.
-     * @return JSON as {"comment": "value", "description": "description", "language": "language"}
+     * @return JSON as @code {"comment": "value", "description": "description", "language": "language"}@endcode
      */
     [[nodiscard]] nlohmann::json toJson() const override;
 
     /**
      * @brief Whether this type of ID3 frame can have multiple instances in one song.
-     * @return True.
+     * @return @code true@endcode
      */
     bool isArrayType() override;
 
@@ -313,7 +314,7 @@ struct APIC : public ID3Frame {
 
     /// Picture type indicating what the picture represents (for example, album cover).
     ///
-    /// See: https://id3.org/id3v2.3.0#:~:text=Picture%20type%3A for all possible types.
+    /// @see https://id3.org/id3v2.3.0#:~:text=Picture%20type%3A
     uint8_t picture_type;       // Picture type       $xx
 
     /// Description. Terminated with null terminator byte(s) $00 (00).
@@ -334,14 +335,14 @@ struct APIC : public ID3Frame {
      * @brief Write this frame to a JSON. The binary data APIC::picture_data will be encoded to text as Base64.
      *
      * Because the APIC is an array type, multiple APIC frames can be included under the "APIC" key in the songs' JSON.
-     * @return JSON as {"description": "description", "mime_type": "mime_type", "picture_data": "picture_data,
-     * "picture_type": "picture_type"}
+     * @return JSON as @code {"description": "description", "mime_type": "mime_type", "picture_data": "picture_data,
+     * "picture_type": "picture_type"} @endcode
      */
     [[nodiscard]] nlohmann::json toJson() const override;
 
     /**
      * @brief Whether this type of ID3 frame can have multiple instances in one song.
-     * @return True.
+     * @return @code true@endcode
      */
     bool isArrayType() override;
 
@@ -371,7 +372,7 @@ struct UrlLinkFrame : public ID3Frame {
 
     /**
      * @brief Write this frame to a JSON.
-     * @return JSON as {"frame_id": "url"}
+     * @return JSON as @code {"frame_id": "url"}@endcode
      */
     [[nodiscard]] nlohmann::json toJson() const override;
 };
@@ -408,13 +409,13 @@ struct WXXX : public ID3Frame {
      * @brief Write this frame to a JSON.
      *
      * Because the WXXX is an array type, multiple WXXX frames can be included under the "WXXX" key in the songs' JSON.
-     * @return JSON as {"description": "description", "url": "url"}
+     * @return JSON as @code {"description": "description", "url": "url"}@endcode
      */
     [[nodiscard]] nlohmann::json toJson() const override;
 
     /**
      * @brief Whether this type of ID3 frame can have multiple instances in one song.
-     * @return True.
+     * @return @code true@endcode
      */
     bool isArrayType() override;
 };
@@ -480,7 +481,7 @@ static Iterator findTerminatingIterator(Iterator begin, Iterator end) {
  * @param encoding [0] ISO-8859-1, [1] UTF-16, [2] UTF-16BE, [3] UTF-8
  * @param little_endian Default = false. In case of UTF-16 with no BOM (which occurs only at first field), set this to true when
  * byte pairs are little endian
- * @return Tuple of [field_string, iterator_past_terminator, bool_little_endian].
+ * @return Tuple of @code[field_string, iterator_past_terminator, bool_little_endian]@endcode .
 */
 template <std::input_iterator Iterator>
 static std::tuple<std::string, Iterator, std::optional<bool>> readFieldToUtf8(Iterator begin, Iterator end_of_vector, int encoding, bool little_endian = false) {

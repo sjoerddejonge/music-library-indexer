@@ -17,11 +17,11 @@
 // Arguments:
 // fin: The ifstream of an .aiff file.
 // verbose: (Optional) bool to toggle console output.
-aiffData scanFile(std::ifstream& fin, const bool verbose) {
-    aiffData aiff_data;
+aiff::Metadata aiff::scanFile(std::ifstream& fin, const bool verbose) {
+    aiff::Metadata aiff_data;
     aiff_data.id3_pos = std::nullopt;
     if (fin) {
-        formChunk form_chunk{};
+        aiff::FormChunk form_chunk{};
         fin.read(reinterpret_cast<char*>(&form_chunk), sizeof(form_chunk));
         form_chunk.ck_size = fromBigEndianInt(form_chunk.ck_size); // Byte swap from big endian to native endian
 
@@ -34,7 +34,7 @@ aiffData scanFile(std::ifstream& fin, const bool verbose) {
 
         // Loop through the file, extracting the ckID and ckSize of each chunk
         while (fin.good() && fin.tellg() < form_chunk.ck_size + 8) {
-            chunkHeader chunk_header{};
+            aiff::ChunkHeader chunk_header{};
             fin.read(reinterpret_cast<char*>(&chunk_header), sizeof(chunk_header));
             chunk_header.ck_size = fromBigEndianInt(chunk_header.ck_size);
 
@@ -87,11 +87,11 @@ aiffData scanFile(std::ifstream& fin, const bool verbose) {
                 num_comments = fromBigEndianInt(num_comments);
                 // Loop through each comment
                 for (uint16_t i = 0; i < num_comments; i++) {
-                    aiffCommentHeader comment_header{};
+                    aiff::CommentHeader comment_header{};
                     fin.read(reinterpret_cast<std::istream::char_type *>(&comment_header), sizeof(comment_header));
                     std::vector<uint8_t> text(fromBigEndianInt(comment_header.count));
                     fin.read(reinterpret_cast<std::istream::char_type *>(text.data()), fromBigEndianInt(comment_header.count));
-                    aiffComment comment{
+                    aiff::Comment comment{
                         .marker_id = fromBigEndianInt(comment_header.marker_id),
                         .text = iso88591ToUtf8(text.begin(), text.end()),
                     };

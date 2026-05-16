@@ -66,7 +66,7 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
                         copyright,
                         anno,
                         comments,
-                        id3_pos] = scanFile(fin); // Scan file for id3 position and metadata.
+                        id3_pos] = aiff::scanFile(fin); // Scan file for id3 position and metadata.
                     if (options.verbose) {
                         std::cout << "~ Filename: " << dir_entry.path() << "\n";
                     }
