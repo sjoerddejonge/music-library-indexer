@@ -12,16 +12,61 @@
 #include <ios>
 #include <iostream>
 
+// Anonymous namespace hiding internal functions:
+namespace {
+struct ChunkHeader {
+    std::array<char, 4> ck_id;   // (32 bits)
+    int32_t ck_size;             // (32 bits)
+};
+
+// The FORM chunk as defined by AIFF spec. It is a container chunk for the other chunks.
+struct FormChunk {
+    std::array<char, 4> ck_id;       // Always 'FORM' (32 bits)
+    int32_t ck_size;                 // The size of the data portion (32 bits)
+    std::array<char, 4> form_type;   // What is in the FORM chunk, always 'AIFF' (32 bits)
+};
+
+#pragma pack(push, 1)
+struct CommonChunk {
+    std::array<char, 4> ck_id;              // Always 'COMM' (32 bits)
+    int32_t ck_size;                        // Size of the data portion of the chunk, always 18 (32 bits)
+    int16_t num_channels;                   // Number of channels (*), 1 for mono, 2 for stereo, etc. (16 bits)
+    uint32_t num_sample_frames;             // Number of samples in Sound Data Chunk (32 bits)
+    int16_t sample_size;                    // Number of bits in each sample point (16 bits)
+    std::array<uint8_t, 10> sample_rate;    // Sample rate in sample frames per second (80 bits)
+
+    // (*) refer to the AIFF documentation (titled: 'Audio Interchange File Format: "AIFF"', Apple 1989)
+    // for the distribution of channels in multichannel files. For stereo channel 1 is left and 2 is right.
+};
+#pragma pack(pop)
+
+// COMT chunk
+#pragma pack(push, 1)
+struct CommentChunk {
+
+};
+#pragma pack(pop)
+
+// A comment chunk
+#pragma pack(push, 1) // Probably unnecessary due to byte alignment
+struct CommentHeader {
+    uint32_t time_stamp;
+    uint16_t marker_id;
+    uint16_t count;
+};
+#pragma pack(pop)
+} // namespace
+
 // Reads the ifstream of an AIFF to the point start of the ID3 tag.
 //
 // Arguments:
 // fin: The ifstream of an .aiff file.
 // verbose: (Optional) bool to toggle console output.
 aiff::Metadata aiff::scanFile(std::ifstream& fin, const bool verbose) {
-    aiff::Metadata aiff_data;
+    Metadata aiff_data;
     aiff_data.id3_pos = std::nullopt;
     if (fin) {
-        aiff::FormChunk form_chunk{};
+        FormChunk form_chunk{};
         fin.read(reinterpret_cast<char*>(&form_chunk), sizeof(form_chunk));
         form_chunk.ck_size = fromBigEndianInt(form_chunk.ck_size); // Byte swap from big endian to native endian
 
@@ -34,7 +79,7 @@ aiff::Metadata aiff::scanFile(std::ifstream& fin, const bool verbose) {
 
         // Loop through the file, extracting the ckID and ckSize of each chunk
         while (fin.good() && fin.tellg() < form_chunk.ck_size + 8) {
-            aiff::ChunkHeader chunk_header{};
+            ChunkHeader chunk_header{};
             fin.read(reinterpret_cast<char*>(&chunk_header), sizeof(chunk_header));
             chunk_header.ck_size = fromBigEndianInt(chunk_header.ck_size);
 
@@ -50,6 +95,8 @@ aiff::Metadata aiff::scanFile(std::ifstream& fin, const bool verbose) {
                 if (verbose) std::cout << "Found ID3 tag." << "\n";
                 aiff_data.id3_pos = fin.tellg();
             }
+
+            // TODO: refactor: write these blocks into a function to be reused
 
             if (ckID == "NAME") {
                 aiff_data.name.resize(chunk_header.ck_size); // Resize container
@@ -87,7 +134,7 @@ aiff::Metadata aiff::scanFile(std::ifstream& fin, const bool verbose) {
                 num_comments = fromBigEndianInt(num_comments);
                 // Loop through each comment
                 for (uint16_t i = 0; i < num_comments; i++) {
-                    aiff::CommentHeader comment_header{};
+                    CommentHeader comment_header{};
                     fin.read(reinterpret_cast<std::istream::char_type *>(&comment_header), sizeof(comment_header));
                     std::vector<uint8_t> text(fromBigEndianInt(comment_header.count));
                     fin.read(reinterpret_cast<std::istream::char_type *>(text.data()), fromBigEndianInt(comment_header.count));

@@ -25,7 +25,6 @@
  *  b. Frame data
  */
 
-// TODO: Refactor to move structs to .cpp if it is not part of the public interface
 // TODO: Add errors to frame type constructors and parsing functions to account for malformed data
 // TODO: Only call fromSynchsafe32() helper when ID3 header flag bit `a` is not set
     // TODO: Add ID3HeaderOptions struct to store ID3 header flags? (Or include in IndexOptions? Or just a bool)

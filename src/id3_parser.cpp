@@ -180,7 +180,7 @@ private:
      * @param text_encoding [0] ISO-8859-1, [1] UTF-16, [2] UTF-16BE, [3] UTF-8
      * @return A string containing the information in TextInformationFrame::value
      */
-    static std::string parseTextInformationFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
+     static std::string parseTextInformationFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
         // TODO: Needs to account for scenarios where data is corrupted/not according to spec
         // Determine the start iterator as start of value field
         const auto it_start = std::next(frame_data.begin(), 1); // Skip 1 byte (encoding)
@@ -570,6 +570,7 @@ struct WXXX : public ID3Frame {
 };
 
 // TODO: Add support for USLT frames:
+
 // // Unsynchronised lyrics/text transcription frames.
 // struct USLT {
 //     uint8_t encoding;
@@ -585,9 +586,9 @@ struct WXXX : public ID3Frame {
 //
 
 // Forward declarations
-static ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options);
-static nlohmann::json extractId3Frames(std::ifstream& fin, ID3Header id3_header, const IndexOptions& options);
-static std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& data, const IndexOptions& options);
+ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options);
+nlohmann::json extractId3Frames(std::ifstream& fin, ID3Header id3_header, const IndexOptions& options);
+std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& data, const IndexOptions& options);
 
 /**
  * @brief Parses the header of an ID3 tag.
@@ -595,7 +596,7 @@ static std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const st
  * @param options IndexOptions of which the option 'verbose' is used to enable/disable console output
  * @return Struct ID3Header containing the file_identifier, version, flags, and size
  */
-static ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
+ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
     ID3Header id3_header{};
     fin.read(reinterpret_cast<char*>(&id3_header), sizeof(id3_header));
     const std::bitset<8> flags{id3_header.flags};
@@ -628,7 +629,7 @@ static ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options)
  * @param options IndexOptions for 'verbose' and 'include_apic'
  * @return JSON that holds ID3 frame data of a song
  */
-static nlohmann::json extractId3Frames(std::ifstream& fin, const ID3Header id3_header, const IndexOptions& options) {
+nlohmann::json extractId3Frames(std::ifstream& fin, const ID3Header id3_header, const IndexOptions& options) {
     nlohmann::json song;
     const uint32_t id3_size = id3_header.getSize();
     const int curr = fin.tellg(); // Current pos on the ifstream, just past the ID3 header
@@ -679,7 +680,7 @@ static nlohmann::json extractId3Frames(std::ifstream& fin, const ID3Header id3_h
  * @param options IndexOptions for 'include_apic' to toggle APIC frame inclusion in output
  * @return A std::unique_ptr to the ID3 frame struct
  */
-static std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& data, const IndexOptions& options) {
+std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& data, const IndexOptions& options) {
     const std::string id = frame_header.frameIdToStr();
     if (id == "TXXX") return std::make_unique<TXXX>(frame_header, data);
     if (id == "WXXX") return std::make_unique<WXXX>(frame_header, data);
