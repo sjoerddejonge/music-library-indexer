@@ -7,7 +7,7 @@ title: Music Library Indexer
     <span>
         <a href="{{ site.baseurl }}">{{ site.index_page_name }}</a> 
         <code>></code> 
-        <a href="/supported_id3_frames.html">Supported ID3v2 frames</a>
+        <a href="{{ site.baseurl }}/supported_id3_frames.html">Supported ID3v2 frames</a>
     </span>
     <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
 </div>

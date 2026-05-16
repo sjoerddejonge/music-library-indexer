@@ -7,7 +7,7 @@ title: Music Library Indexer
     <span>
         <a href="{{ site.baseurl }}">{{ site.index_page_name }}</a> 
         <code>></code>  
-        <a href="how_to_use.md">How to use</a>
+        <a href="{{ site.baseurl }}/how_to_use.html">How to use</a>
     </span>
     <a href="{{ site.repo_url }}">{{ site.return_text }}</a>
 </div>
