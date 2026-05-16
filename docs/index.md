@@ -27,7 +27,7 @@ The documentation for the [Music Library Indexer repository](https://github.com/
 * Development
   * Building from Source
   * Adding File Formats
-  * Guidelines
+  * [Guidelines](guidelines.md)
   * [Known Issues (GitHub Issues ↗)](https://github.com/sjoerddejonge/music-library-indexer/issues)
   * Roadmap
 
