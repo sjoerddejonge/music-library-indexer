@@ -9,34 +9,51 @@
 #include "options.hpp"
 #include "util/base64.hpp"
 #include "util/helpers.hpp"
-#include "../include/nlohmann/json.hpp"
+#include "nlohmann/json.hpp"
 
-
-// Return a song
 //
-// Arguments:
-// - fin:       Reference to the ifstream of the music file.
-// - id3_pos:   The std::streampos of the ID3 tag in the music file.
-// - options:   A struct with options for running the command. For default see include/options.hpp
+//      Internal implementation functions:
+//
+
+/**
+ * @brief Parses the header of an ID3 tag.
+ * @param fin Const reference to a std::ifstream at the start of the ID3 tag
+ * @param options IndexOptions of which the option 'verbose' is used to enable/disable console output
+ * @return Struct ID3Header containing the file_identifier, version, flags, and size
+ */
+static ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options);
+
+/**
+ * @brief Scans all supported ID3 frames of a song and writes them to the JSON.
+ * @param fin Const reference to a std::ifstream
+ * @param id3_header Header of the ID3 tag
+ * @param options IndexOptions for 'verbose' and 'include_apic'
+ * @return JSON that holds ID3 frame data of a song
+ */
+static nlohmann::json extractId3Frames(std::ifstream& fin, ID3Header id3_header, const IndexOptions& options);
+
+/**
+ * @brief Create an ID3 frame struct for the supported ID3 frames.
+ * @param frame_header Header of the ID3 frame
+ * @param data Byte vector with the data of the frame minus the header
+ * @param options IndexOptions for 'include_apic' to toggle APIC frame inclusion in output
+ * @return
+ */
+static std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& data, const IndexOptions& options);
+
 nlohmann::json id3ToJson(std::ifstream& fin, const std::streampos &id3_pos, const IndexOptions& options) {
-    nlohmann::json song;
     // Move to start of ID3 tag
     fin.seekg(id3_pos);
     // Extract ID3 header.
     const ID3Header id3_header = parseId3Header(fin, options);
     // Extract ID3 frames and add to JSON.
-    extractId3Frames(fin, id3_header, song, options);
+    nlohmann::json song = extractId3Frames(fin, id3_header, options);
     // "ID3" file identifier in the header guarantees this is ID3v2.X
     song["id3_version"] = std::format("2.{}.{}", id3_header.version[0], id3_header.version[1]);
     return song;
 }
 
-// Accepts an fstream at the start of an ID3 tag and parses the header(s).
-//
-// Arguments:
-// - fin:       Reference to the ifstream at the start of the ID3 tag.
-// - verbose:   Optional bool to enable console output, default = false.
-ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
+static ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
     ID3Header id3_header{};
     fin.read(reinterpret_cast<char*>(&id3_header), sizeof(id3_header));
     const std::bitset<8> flags{id3_header.flags};
@@ -62,14 +79,8 @@ ID3Header parseId3Header(std::ifstream& fin, const IndexOptions& options) {
     return id3_header;
 }
 
-// Accepts an ifstream past the ID3 header, scans ID3 frames and writes them to JSON.
-//
-// Arguments:
-// - fin:           Reference to the ifstream at the start of the first ID3 frame.
-// - id3_header:    Header of the ID3 tag, containing the size and version.
-// - song:          The JSON to store the song's ID3 data in.
-// - options:       Contains bool verbose to enable console output, default = false.
-void extractId3Frames(std::ifstream& fin, const ID3Header id3_header, nlohmann::json& song, const IndexOptions& options) {
+static nlohmann::json extractId3Frames(std::ifstream& fin, const ID3Header id3_header, const IndexOptions& options) {
+    nlohmann::json song;
     const uint32_t id3_size = id3_header.getSize();
     const int curr = fin.tellg(); // Current pos on the ifstream, just past the ID3 header
 
@@ -98,8 +109,8 @@ void extractId3Frames(std::ifstream& fin, const ID3Header id3_header, nlohmann::
         fin.read(reinterpret_cast<char*>(frame_data.data()), id3_frame_header.getSize(synchsafe));
 
         if (const auto frame = makeFrame(id3_frame_header, frame_data, options)) {
-            nlohmann::json frame_json = frame->toJson();
-            if (!frame_json.empty()) {
+                nlohmann::json frame_json = frame->toJson();
+                if (!frame_json.empty()) {
                 if (frame->isArrayType()) {
                     // Array type frames can hold multiple frames with the same ID (multiple COMMs, or APICs, for example)
                     song["id3_frames"][frame->header.frameIdToStr()].push_back(frame_json);
@@ -109,17 +120,17 @@ void extractId3Frames(std::ifstream& fin, const ID3Header id3_header, nlohmann::
             }
         }
     }
+    return song;
 }
 
-// Create an ID3 frame struct for the supported ID3 frames.
-std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader header, const std::vector<uint8_t>& data, const IndexOptions& options) {
-    const std::string id = header.frameIdToStr();
-    if (id == "TXXX") return std::make_unique<TXXX>(header, data);
-    if (id == "WXXX") return std::make_unique<WXXX>(header, data);
-    if (id == "COMM") return std::make_unique<COMM>(header, data);
-    if (id == "APIC" && options.include_apic) return std::make_unique<APIC>(header, data);
-    if (id[0] == 'T') return std::make_unique<TextInformationFrame>(header, data);
-    if (id[0] == 'W') return std::make_unique<UrlLinkFrame>(header, data);
+std::unique_ptr<ID3Frame> makeFrame(ID3FrameHeader frame_header, const std::vector<uint8_t>& data, const IndexOptions& options) {
+    const std::string id = frame_header.frameIdToStr();
+    if (id == "TXXX") return std::make_unique<TXXX>(frame_header, data);
+    if (id == "WXXX") return std::make_unique<WXXX>(frame_header, data);
+    if (id == "COMM") return std::make_unique<COMM>(frame_header, data);
+    if (id == "APIC" && options.include_apic) return std::make_unique<APIC>(frame_header, data);
+    if (id[0] == 'T') return std::make_unique<TextInformationFrame>(frame_header, data);
+    if (id[0] == 'W') return std::make_unique<UrlLinkFrame>(frame_header, data);
     return nullptr;
 }
 
@@ -152,11 +163,10 @@ nlohmann::json TextInformationFrame::toJson() const {
 // (Private) Parse frame data into struct member variable(s).
 std::string TextInformationFrame::parseTextInformationFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
     // TODO: Needs to account for scenarios where data is corrupted/not according to spec
-    const bool is_double_byte = (text_encoding == 1 || text_encoding == 2); // UTF-16(BE) uses 2 terminating bytes
     // Determine the start iterator as start of value field
     const auto it_start = std::next(frame_data.begin(), 1); // Skip 1 byte (encoding)
     auto [val, it_after_desc, little_endian] =
-        readFieldToUtf8(it_start, frame_data.end(), is_double_byte, text_encoding);
+        readFieldToUtf8(it_start, frame_data.end(), text_encoding);
     return val;
 }
 
@@ -192,16 +202,14 @@ bool TXXX::isArrayType() {
 // (Private) Parse frame data into struct member variable(s).
 std::pair<std::string, std::string> TXXX::parseTXXXFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
     // text_encoding: 0 = ISO-8859-1, 1 = UTF-16, 2 = UTF-16BE, 3 = UTF-8
-    // For UTF-16 the terminating byte is double
-    const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
     // Determine the start iterator as start of description field
     const auto it_start = std::next(frame_data.begin(), 1); // Skip 1 byte (encoding)
     auto [desc, it_after_desc, little_endian] =
-        readFieldToUtf8(it_start, frame_data.end(), is_double_byte, text_encoding);
+        readFieldToUtf8(it_start, frame_data.end(), text_encoding);
     // If there is no more data, end here.
     if (it_after_desc == frame_data.end()) return {desc, ""};
     auto [val, it_after_val, lit_endian] =
-        readFieldToUtf8(it_after_desc, frame_data.end(), is_double_byte, text_encoding, little_endian.value_or(true));
+        readFieldToUtf8(it_after_desc, frame_data.end(), text_encoding, little_endian.value_or(true));
     return {desc, val};
 }
 
@@ -238,16 +246,14 @@ bool COMM::isArrayType() {
 
 // (Private) Parse frame data into struct member variable(s).
 std::pair<std::string, std::string> COMM::parseCOMMFrame(const std::vector<uint8_t>& frame_data, const uint8_t text_encoding) {
-    // For UTF-16 the terminating byte is double
-    const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
     // Determine the start iterator as start of description field
     const auto it_start = std::next(frame_data.begin(), 4); // Skip 4 bytes (encoding + lang)
     auto [desc, it_after_desc, little_endian] =
-        readFieldToUtf8(it_start, frame_data.end(), is_double_byte, text_encoding);
+        readFieldToUtf8(it_start, frame_data.end(), text_encoding);
     // If there is no more data, end here.
     if (it_after_desc == frame_data.end()) return {desc, ""};
     auto [val, it_after_val, lit_endian] =
-        readFieldToUtf8(it_after_desc, frame_data.end(), is_double_byte, text_encoding, little_endian.value_or(true));
+        readFieldToUtf8(it_after_desc, frame_data.end(), text_encoding, little_endian.value_or(true));
     return {desc, val};
 }
 
@@ -297,8 +303,6 @@ std::tuple<std::string, uint8_t, std::string, std::vector<uint8_t>> APIC::parseA
     uint8_t picture = 0;
     std::vector<uint8_t> picture_data{};
 
-    // For UTF-16 the terminating byte is double, except for MIME type which is always ISO-8859-1 encoding
-    const bool is_double_byte = (text_encoding == 1 || text_encoding == 2);
     // TODO: Refactor this code and check for safety with malformed data
     auto it_begin = frame_data.begin() + 1; // No BOM at start of file.
     auto it_end = std::find(it_begin, frame_data.end(), 0x00);
@@ -316,7 +320,7 @@ std::tuple<std::string, uint8_t, std::string, std::vector<uint8_t>> APIC::parseA
     // If there is no more data, end here.
     if (it_begin == frame_data.end()) return {mime, picture, "", picture_data};
 
-    auto [desc, it_after_desc, little_endian] = readFieldToUtf8(it_begin, frame_data.end(), is_double_byte, text_encoding);
+    auto [desc, it_after_desc, little_endian] = readFieldToUtf8(it_begin, frame_data.end(), text_encoding);
 
     // If there is no more data, end here.
     if (it_after_desc == frame_data.end()) return {mime, picture, desc, picture_data};
@@ -331,12 +335,12 @@ std::tuple<std::string, uint8_t, std::string, std::vector<uint8_t>> APIC::parseA
 //          Struct UrlLinkFrame
 // -------------------------------------
 
-UrlLinkFrame::UrlLinkFrame(ID3FrameHeader frame_header, const std::vector<uint8_t> &frame_data) {
+UrlLinkFrame::UrlLinkFrame(const ID3FrameHeader frame_header, const std::vector<uint8_t> &frame_data) {
     // Data should never be empty
     if (frame_data.empty()) throw std::runtime_error("UrlLinkFrame: empty frame");
 
     header = frame_header;
-    auto [text, iter, opt] = readFieldToUtf8(frame_data.begin(), frame_data.end(), false, 0);
+    auto [text, iter, opt] = readFieldToUtf8(frame_data.begin(), frame_data.end(), 0);
     url = text;
 }
 
@@ -358,10 +362,9 @@ WXXX::WXXX(const ID3FrameHeader frame_header, const std::vector<uint8_t>& frame_
     header = frame_header;
     encoding = frame_data[0];
     auto it_begin = frame_data.begin() + 1;
-    bool is_double_byte = (encoding == 1 || encoding == 2);
-    auto [desc, it_after_field, opt] = readFieldToUtf8(it_begin, frame_data.end(), is_double_byte, encoding);
+    auto [desc, it_after_field, opt] = readFieldToUtf8(it_begin, frame_data.end(), encoding);
     description = desc;
-    auto [text, iter, opt2] = readFieldToUtf8(it_after_field, frame_data.end(), false, 0);
+    auto [text, iter, opt2] = readFieldToUtf8(it_after_field, frame_data.end(), 0);
     url = text;
 }
 

@@ -6,8 +6,8 @@
 #define MLI_PROGRAM_INFO_H
 #include <string>
 
-/*
- *  Contains the runtime name of the program.
+/**
+ * Contains the runtime name of the program.
  */
 
 namespace program {

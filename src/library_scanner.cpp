@@ -60,26 +60,32 @@ nlohmann::json libraryToJson(const std::filesystem::path& directory_path, const 
                     continue;
                 }
                 try {
-                    aiffData aiff_data = scanFile(fin); // Scan file for id3 position and metadata.
+                    auto [
+                        name,
+                        author,
+                        copyright,
+                        anno,
+                        comments,
+                        id3_pos] = scanFile(fin); // Scan file for id3 position and metadata.
                     if (options.verbose) {
                         std::cout << "~ Filename: " << dir_entry.path() << "\n";
                     }
-                    if (aiff_data.id3_pos == std::nullopt) {
+                    if (id3_pos == std::nullopt) {
                         std::cout << "No ID3 tag found in file.\n";
                     }
                     else {
                         // Returns a JSON with at highest level "id3_version" and "id3_frames":
-                        nlohmann::json song = id3ToJson(fin, aiff_data.id3_pos.value(), options);
+                        nlohmann::json song = id3ToJson(fin, id3_pos.value(), options);
                         song["filename"] = dir_entry.path().filename().string(); // Add filename to the JSON
                         // Add relative path (excluding directory_path) to JSON:
                         song["relative_path"] = dir_entry.path().lexically_relative(directory_path).string();
                         // Add aiff metadata if present
-                        if (!aiff_data.name.empty()) song["aiff_data"]["name"] = iso88591ToUtf8(aiff_data.name.begin(), aiff_data.name.end());
-                        if (!aiff_data.auth.empty()) song["aiff_data"]["author"] = iso88591ToUtf8(aiff_data.auth.begin(), aiff_data.auth.end());
-                        if (!aiff_data.copyright.empty()) song["aiff_data"]["copyright"] = iso88591ToUtf8(aiff_data.copyright.begin(), aiff_data.copyright.end());
-                        if (!aiff_data.anno.empty()) song["aiff_data"]["annotation"] = iso88591ToUtf8(aiff_data.anno.begin(), aiff_data.anno.end());
-                        if (!aiff_data.comments.empty()) {
-                            for (auto const& comment : aiff_data.comments) {
+                        if (!name.empty()) song["aiff_data"]["name"] = iso88591ToUtf8(name.begin(), name.end());
+                        if (!author.empty()) song["aiff_data"]["author"] = iso88591ToUtf8(author.begin(), author.end());
+                        if (!copyright.empty()) song["aiff_data"]["copyright"] = iso88591ToUtf8(copyright.begin(), copyright.end());
+                        if (!anno.empty()) song["aiff_data"]["annotation"] = iso88591ToUtf8(anno.begin(), anno.end());
+                        if (!comments.empty()) {
+                            for (auto const& comment : comments) {
                                 nlohmann::json json_comment;
                                 json_comment["text"] = comment.text;
                                 json_comment["marker_id"] = comment.marker_id;

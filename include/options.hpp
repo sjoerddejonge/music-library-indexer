@@ -4,7 +4,6 @@
 
 #ifndef MLI_CONFIG_H
 #define MLI_CONFIG_H
-#include <iostream>
 #include <format>
 #include <chrono>
 
