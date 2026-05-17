@@ -18,11 +18,30 @@ title: Music Library Indexer
 
 Guidelines are a work-in-progress.
 
+
+## Commits
+All commits should have one of the following types:
+
+* `feat`: Adds a new feature.
+* `fix`: Fixes a bug.
+* `refactor`: Rewrites/restructures code and does not add features or
+  fixes bugs.
+* `chore`: Changes that are not related to a fix or feature and do not
+  modify code in src or test files. Examples: Changing version number,
+  modifying .gitignore file, updating dependencies.
+* `docs`: Updates the documentation, README.md
+* `style`: Changes that do not affect the meaning of the code, likely
+  related to code formatting such as white-space, missing semi-colons, etc.
+* `revert`: Revert a previous commit.
+* `test`: Add or correct test(s).
+
+
 ## Writing code
 > Public functions in header files should use doxygen-style comments to
 document the functionality.  
 
-For example:
+The comment should document what the function does, what each parameter
+represents, and what it returns:
 ```c++
 /**
  * @brief Extract all information from ID3 tag and write to JSON.
@@ -33,6 +52,9 @@ For example:
  */
 nlohmann::json id3ToJson(std::ifstream& fin, const std::streampos &id3_pos, const IndexOptions& options);
 ```
+
+
+
 
 ---
 <div style="display: flex; justify-content: right;">
