@@ -31,7 +31,12 @@ inline std::array base64URL = {
 
 inline constexpr char padding = '='; // The padding character for when data.size() % 3 != 0
 
-// Encode a vector of bytes to a string using Base64. For Base64URL alphabet set bool url to true.
+/**
+ * @brief           Encode a vector of bytes to a string using Base64.
+ * @param data:     The raw byte vector to encode to text.
+ * @param url:      False by default. When true Base64URL alphabet is used (uses `-` and `_` instead of `+` and `/`).
+ * @return          A string of characters from the Base64 alphabet, with padding char `=`.
+ */
 inline std::string base64Encode(std::vector<uint8_t> const& data, const bool url = false) {
     std::string result;
     const std::array<char, 64>& alphabet = url ? base64URL : base64; // Reference the array to avoid making copies.
@@ -92,7 +97,12 @@ int indexOfChar(const char c, std::array<char, N>& arr) {
     return strchr(arr.data(), c)-arr.data();
 }
 
-// Decode a Base64 string to a vector of bytes. For Base64URL alphabet set bool url to true.
+/**
+ * @brief           Decode a Base64 string to a vector of bytes.
+ * @param data      The Base64 string to decode.
+ * @param url       Whether data uses the Base64 alphabet or Base64URL alphabet.
+ * @return          A vector of raw bytes.
+ */
 inline std::vector<uint8_t> base64Decode(std::string const& data, const bool url = false) {
     std::vector<uint8_t> result;
     std::array<char, 64> &alphabet = url ? base64URL : base64;

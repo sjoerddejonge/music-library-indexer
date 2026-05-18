@@ -13,12 +13,6 @@
 #include "util/helpers.hpp"
 #include "program_info.hpp"
 
-// Scan the directory for compatible files, extract ID3 tags for each file, then append to JSON.
-// The JSON is either printed to console, written as file, or discarded.
-//
-// Arguments:
-// directory_path       Path to the directory to scan.
-// options              IndexOptions to configure options for this command, see include/options.hpp
 void commands::index(const std::filesystem::path& directory_path, const IndexOptions& options) {
     if (options.subdirectories) std::cout << "Directories without permission to read are skipped silently.\n";
     // Directory scanning:
@@ -48,7 +42,6 @@ void commands::index(const std::filesystem::path& directory_path, const IndexOpt
     }
 }
 
-// Print help text for instructions on how to use this program.
 void commands::help() {
                 //  ================================================================================
     std::cout   // << "Music Library Indexer" << std::format("                     version: {}\n", program::version())
